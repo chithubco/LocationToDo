@@ -2,6 +2,8 @@ package com.echithub.locationtodo
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -10,6 +12,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.echithub.locationtodo.databinding.ActivityMapsBinding
+import com.google.android.gms.maps.model.MapStyleOptions
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -41,8 +44,44 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
 
         // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        val barumak = LatLng(9.052596841535514, 7.452365927641011)
+        mMap.addMarker(MarkerOptions().position(barumak).title("Barumak"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(barumak,16f))
+        mMap.uiSettings.apply {
+
+        }
+        setMapStyle(mMap)
+
+        onMapClicked()
+        onMapLongClick()
+    }
+
+    private fun setMapStyle(googleMap: GoogleMap){
+        try {
+            val success = googleMap.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    this,
+                    R.raw.style
+                )
+            )
+            if (!success){
+                Log.d("Maps","Failed to add Styles to map")
+            }
+        }catch (e: Exception){
+            Log.d("Maps",e.toString())
+        }
+    }
+
+    private fun onMapClicked(){
+        mMap.setOnMapClickListener {
+            Toast.makeText(this,"Single Click ${it.longitude} ${it.latitude}",Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun onMapLongClick() {
+        mMap.setOnMapLongClickListener {
+            Toast.makeText(this,"Long Click ${it.longitude} ${it.latitude}",Toast.LENGTH_SHORT).show()
+            mMap.addMarker(MarkerOptions().position(it).title("New Marker"))
+        }
     }
 }

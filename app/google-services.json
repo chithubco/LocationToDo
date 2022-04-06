@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "674417681320",
+    "project_id": "locationtodo-8314e",
+    "storage_bucket": "locationtodo-8314e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:674417681320:android:722207d4c7dd4185c8b39d",
+        "android_client_info": {
+          "package_name": "com.echithub.locationtodo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "674417681320-8ru5q5qnb9vvdhbks3bv81lt6t2ct3qm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.echithub.locationtodo",
+            "certificate_hash": "edfc2a80df7888f5603f55571c303d25f4da235d"
+          }
+        },
+        {
+          "client_id": "674417681320-f5g2d36f67fn652okpf2ih2fn9ebqdv3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCH7SI580vuTxDXVHBTL4XIVcejR1O8r_0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "674417681320-f5g2d36f67fn652okpf2ih2fn9ebqdv3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
