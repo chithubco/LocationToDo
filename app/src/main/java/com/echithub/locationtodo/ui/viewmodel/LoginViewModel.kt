@@ -1,4 +1,4 @@
-package com.echithub.locationtodo.ui
+package com.echithub.locationtodo.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map

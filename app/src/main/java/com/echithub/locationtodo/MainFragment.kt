@@ -8,13 +8,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.echithub.locationtodo.databinding.FragmentMainBinding
-import com.echithub.locationtodo.ui.LoginViewModel
+import com.echithub.locationtodo.ui.viewmodel.LoginViewModel
 import com.echithub.locationtodo.utils.Constants.SIGN_IN_REQUEST_CODE
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
@@ -53,7 +52,10 @@ class MainFragment : Fragment() {
         navController = findNavController()
         mViewModel.authenticationState.observe(viewLifecycleOwner, Observer { authenticationState ->
             when(authenticationState){
-                LoginViewModel.AuthenticationState.AUTHENTICATED -> navController.popBackStack()
+                LoginViewModel.AuthenticationState.AUTHENTICATED -> {
+                    navController.popBackStack()
+                    binding.btnLogin.text = "Logout"
+                }
                 LoginViewModel.AuthenticationState.INVALID_AUTHENTICATION -> Snackbar.make(
                     view, requireActivity().getString(R.string.login_unsuccessful_msg),
                     Snackbar.LENGTH_LONG
@@ -77,12 +79,18 @@ class MainFragment : Fragment() {
             .build(),SIGN_IN_REQUEST_CODE)
     }
 
+    private fun logout() {
+        AuthUI.getInstance().signOut(requireContext())
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 //        super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == SIGN_IN_REQUEST_CODE){
             val response =IdpResponse.fromResultIntent(data)
             if (resultCode == Activity.RESULT_OK){
                 Log.i("MainFragment","Successfully singened in ${FirebaseAuth.getInstance().currentUser?.displayName}")
+                val action = MainFragmentDirections.actionMainFragmentToListFragment()
+                findNavController().navigate(action)
             }else{
                 Log.i("MainFragment","Sign in unsuccessful ${response?.error?.errorCode}")
             }
