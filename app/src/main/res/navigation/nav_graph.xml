@@ -34,10 +34,20 @@
         <action
             android:id="@+id/action_mapsFragment_to_listFragment"
             app:destination="@id/listFragment" />
+        <action
+            android:id="@+id/action_mapsFragment_to_detailFragment"
+            app:destination="@id/detailFragment" />
     </fragment>
-    <fragment
+    <dialog
         android:id="@+id/detailFragment"
         android:name="com.echithub.locationtodo.DetailFragment"
         android:label="fragment_detail"
-        tools:layout="@layout/fragment_detail" />
+        tools:layout="@layout/fragment_detail" >
+        <action
+            android:id="@+id/action_detailFragment_to_listFragment"
+            app:destination="@id/listFragment" />
+        <argument
+            android:name="reminder"
+            app:argType="com.echithub.locationtodo.data.model.Reminder" />
+    </dialog>
 </navigation>

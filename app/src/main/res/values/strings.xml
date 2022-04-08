@@ -11,4 +11,5 @@
     <string name="location_1">Location 1</string>
     <string name="description">This is the place that made be become a great developer</string>
     <string name="lat_long">Lat : 234 , Long 34.90</string>
+    <string name="latlong_unit_format">%f km</string>
 </resources>

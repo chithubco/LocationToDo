@@ -35,7 +35,7 @@ class ReminderListAdapter(val reminderList: ArrayList<Reminder>):RecyclerView.Ad
     }
 
     fun setData(reminders: List<Reminder>){
-//        reminderList.clear()
+        reminderList.clear()
         reminderList.addAll(reminders)
         notifyDataSetChanged()
     }

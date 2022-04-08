@@ -17,4 +17,8 @@ class ReminderRepo(private val database: AppDatabase) {
     suspend fun addReminder(vararg reminders: Reminder):List<Long>{
         return reminderDao.insertReminder(*reminders)
     }
+
+    suspend fun getReminderWithTitle(title:String):Reminder{
+        return reminderDao.getReminderWithId(title)
+    }
 }

@@ -25,12 +25,17 @@ class ListViewModel(application: Application):AndroidViewModel(application) {
 
     fun refresh(){
         readAllData = repo.readAllData
+        Log.i("ViewModel",readAllData.value.toString())
     }
 
     fun addReminder(reminder: Reminder){
         viewModelScope.launch(Dispatchers.IO){
             repo.addReminder(reminder)
         }
+    }
+
+    suspend fun getReminderWithId(title: String):Reminder{
+            return repo.getReminderWithTitle(title)
     }
 
     override fun onCleared() {

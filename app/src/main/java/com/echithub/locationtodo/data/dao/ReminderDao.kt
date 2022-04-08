@@ -6,7 +6,7 @@ import com.echithub.locationtodo.data.model.Reminder
 
 @Dao
 interface ReminderDao {
-    @Query("SELECT * FROM reminder_table ORDER BY created_date DESC")
+    @Query("SELECT * FROM reminder_table")
     fun getAll():LiveData<List<Reminder>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -15,8 +15,8 @@ interface ReminderDao {
     @Delete
     fun delete(reminder:Reminder)
 
-    @Query("SELECT * FROM reminder_table WHERE id=:key")
-    fun getReminderWithId(key:Long): Reminder
+    @Query("SELECT * FROM reminder_table WHERE title=:title")
+    fun getReminderWithId(title:String): Reminder
 
     @Query("DELETE FROM reminder_table")
     fun deleteAll()
