@@ -1,8 +1,10 @@
 package com.echithub.locationtodo
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.content.Intent
+import android.content.IntentSender
 import androidx.fragment.app.Fragment
-
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,26 +20,38 @@ import androidx.navigation.fragment.findNavController
 import com.echithub.locationtodo.data.model.Reminder
 import com.echithub.locationtodo.databinding.AddReminderDialogBinding
 import com.echithub.locationtodo.databinding.FragmentMapsBinding
+import com.echithub.locationtodo.receivers.GeofenceBroadcastReceiver
 import com.echithub.locationtodo.ui.viewmodel.ListViewModel
-import com.google.android.gms.location.GeofencingClient
-import com.google.android.gms.location.LocationServices
-
+import com.echithub.locationtodo.utils.Constants.GEOFENCE_EXPIRATION_IN_MILLISECONDS
+import com.echithub.locationtodo.utils.Constants.GEOFENCE_LOITERING_DELAY_IN_MILLISECONDS
+import com.echithub.locationtodo.utils.Constants.GEOFENCE_RADIUS_IN_METERS
+import com.echithub.locationtodo.utils.Constants.GEOFENCE_REQUEST_ID
+import com.echithub.locationtodo.utils.Constants.REQUEST_TURN_DEVICE_LOCATION_ON
+import com.echithub.locationtodo.utils.Permissions
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MapStyleOptions
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
+import com.google.android.material.snackbar.Snackbar
+import com.vmadalin.easypermissions.EasyPermissions
+import com.vmadalin.easypermissions.dialogs.SettingsDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMyLocationButtonClickListener {
+class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnPoiClickListener, EasyPermissions.PermissionCallbacks {
 
     private lateinit var mMap: GoogleMap
     private lateinit var geofencingClient: GeofencingClient
+
+    private val geofencePendingIntent: PendingIntent by lazy {
+        val intent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)
+        intent.action = ACTION_GEOFENCE_EVENT
+        PendingIntent.getBroadcast(requireContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+    }
 
     private var _binding: FragmentMapsBinding? = null
     private val binding get() = _binding!!
@@ -46,6 +60,9 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
 
     private var locationList = mutableListOf<LatLng>()
     private var markerList = mutableListOf<Marker>()
+
+    private val runningQOrLater =
+        android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q
 
     @SuppressLint("MissingPermission")
     private val callback = OnMapReadyCallback { googleMap ->
@@ -60,6 +77,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
          */
         mMap = googleMap
         mMap.isMyLocationEnabled = true
+        // Create a Geofence instance
         geofencingClient = LocationServices.getGeofencingClient(requireContext())
 
         val barumak = LatLng(9.052596841535514, 7.452365927641011)
@@ -77,9 +95,11 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
             }
         })
         mMap.setOnMarkerClickListener(this)
+        mMap.setOnPoiClickListener(this)
         mMap.setOnMyLocationButtonClickListener(this)
         onMapClicked()
         onMapLongClick()
+
     }
 
     override fun onCreateView(
@@ -101,11 +121,13 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
 
     private fun onMapClicked() {
         mMap.setOnMapClickListener {
-            Toast.makeText(
-                requireContext(),
-                "Single Click ${it.longitude} ${it.latitude}",
-                Toast.LENGTH_SHORT
-            ).show()
+
+            if (Permissions.hasBackgroundLocationPermission(requireContext())){
+                createGeofence(it) // Great a Geofence
+            }else{
+                Permissions.requestBackgroundLocationPermission(this)
+            }
+
         }
     }
 
@@ -117,7 +139,6 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
                 Toast.LENGTH_SHORT
             ).show()
             createAddReminderDialog(it)
-//            mMap.addMarker(MarkerOptions().position(it).title("New Marker"))
         }
     }
 
@@ -195,5 +216,107 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
     override fun onMyLocationButtonClick(): Boolean {
         return false
     }
+
+    @SuppressLint("MissingPermission")
+    private fun createGeofence(position: LatLng){
+        val geofence = Geofence.Builder()
+            .setRequestId(GEOFENCE_REQUEST_ID)
+            .setCircularRegion(position.latitude,position.longitude,GEOFENCE_RADIUS_IN_METERS)
+            .setLoiteringDelay(GEOFENCE_LOITERING_DELAY_IN_MILLISECONDS)
+            .setExpirationDuration(GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT or Geofence.GEOFENCE_TRANSITION_DWELL)
+//            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL)
+            .build()
+
+        val request = GeofencingRequest.Builder().apply {
+            setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER or GeofencingRequest.INITIAL_TRIGGER_DWELL)
+//            setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL)
+            addGeofence(geofence)
+        }.build()
+
+        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
+            addOnCompleteListener {
+                geofencingClient.addGeofences(request, geofencePendingIntent)?.run {
+                    addOnSuccessListener {
+                        // Geofences added.
+                        Toast.makeText(requireActivity(), "Geofence Added",
+                            Toast.LENGTH_LONG)
+                            .show()
+                        Log.e("Add Geofence", geofence.requestId)
+                    }
+                    addOnFailureListener {
+                        if ((it.message != null)) {
+                            Log.w(TAG, it.toString())
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onPoiClick(poi: PointOfInterest) {
+        createAddReminderDialog(poi.latLng)
+    }
+
+    private fun checkDeviceLocationSettingsAndStartGeofence(resolve:Boolean = true){
+        val locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_LOW_POWER
+        }
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val settingsClient = LocationServices.getSettingsClient(requireContext())
+        val locationSettingsResponseTask =
+            settingsClient.checkLocationSettings(builder.build())
+        locationSettingsResponseTask.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException && resolve){
+                try {
+                    exception.startResolutionForResult(requireActivity(),
+                        REQUEST_TURN_DEVICE_LOCATION_ON)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    Log.d(TAG, "Error getting location settings resolution: " + sendEx.message)
+                }
+            } else {
+
+            }
+        }
+        locationSettingsResponseTask.addOnCompleteListener {
+            if ( it.isSuccessful ) {
+                createGeofence(LatLng(123.990,123.909))
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
+            checkDeviceLocationSettingsAndStartGeofence(false)
+        }
+    }
+
+    override fun onPermissionsDenied(requestCode: Int, perms: List<String>) {
+        if (EasyPermissions.somePermissionPermanentlyDenied(this,perms)){
+            SettingsDialog.Builder(
+                requireActivity(),
+            ).build().show()
+        }else{
+            Permissions.requestLocationPermission(this)
+        }
+    }
+
+    override fun onPermissionsGranted(requestCode: Int, perms: List<String>) {
+        TODO("Not yet implemented")
+    }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+    companion object {
+        internal const val ACTION_GEOFENCE_EVENT =
+            "HuntMainActivity.treasureHunt.action.ACTION_GEOFENCE_EVENT"
+    }
+
 
 }
