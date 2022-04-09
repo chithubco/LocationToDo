@@ -1,5 +1,6 @@
 package com.echithub.locationtodo
 
+import android.annotation.SuppressLint
 import androidx.fragment.app.Fragment
 
 import android.os.Bundle
@@ -18,6 +19,8 @@ import com.echithub.locationtodo.data.model.Reminder
 import com.echithub.locationtodo.databinding.AddReminderDialogBinding
 import com.echithub.locationtodo.databinding.FragmentMapsBinding
 import com.echithub.locationtodo.ui.viewmodel.ListViewModel
+import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.LocationServices
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -31,9 +34,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
+class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMyLocationButtonClickListener {
 
     private lateinit var mMap: GoogleMap
+    private lateinit var geofencingClient: GeofencingClient
+
     private var _binding: FragmentMapsBinding? = null
     private val binding get() = _binding!!
     private val TAG = "ListFragment"
@@ -42,6 +47,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
     private var locationList = mutableListOf<LatLng>()
     private var markerList = mutableListOf<Marker>()
 
+    @SuppressLint("MissingPermission")
     private val callback = OnMapReadyCallback { googleMap ->
         /**
          * Manipulates the map once available.
@@ -53,6 +59,9 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
          * user has installed Google Play services and returned to the app.
          */
         mMap = googleMap
+        mMap.isMyLocationEnabled = true
+        geofencingClient = LocationServices.getGeofencingClient(requireContext())
+
         val barumak = LatLng(9.052596841535514, 7.452365927641011)
         mMap.addMarker(MarkerOptions().position(barumak).title("Barumak"))
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(barumak, 16f))
@@ -68,6 +77,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
             }
         })
         mMap.setOnMarkerClickListener(this)
+        mMap.setOnMyLocationButtonClickListener(this)
         onMapClicked()
         onMapLongClick()
     }
@@ -180,6 +190,10 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener {
         displayDetail(reminder)
 //        mMap.animateCamera(CameraUpdateFactory.zoomTo(17f), null)
         return true
+    }
+
+    override fun onMyLocationButtonClick(): Boolean {
+        return false
     }
 
 }

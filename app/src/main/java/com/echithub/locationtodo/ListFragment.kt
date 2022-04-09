@@ -16,7 +16,11 @@ import com.echithub.locationtodo.databinding.AddReminderDialogBinding
 import com.echithub.locationtodo.databinding.FragmentListBinding
 import com.echithub.locationtodo.ui.adapters.ReminderListAdapter
 import com.echithub.locationtodo.ui.viewmodel.ListViewModel
+import com.echithub.locationtodo.utils.Permissions.hasLocationPermission
+import com.echithub.locationtodo.utils.Permissions.requestLocationPermission
 import com.google.android.material.snackbar.Snackbar
+import com.vmadalin.easypermissions.EasyPermissions
+import com.vmadalin.easypermissions.dialogs.SettingsDialog
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -28,7 +32,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [ListFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class ListFragment : Fragment() {
+class ListFragment : Fragment(), EasyPermissions.PermissionCallbacks {
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
@@ -59,19 +63,25 @@ class ListFragment : Fragment() {
         })
 
         binding.fabAddReminder.setOnClickListener {
-            val action = ListFragmentDirections.actionListFragmentToMapsFragment()
-            findNavController().navigate(action)
+
+            if (hasLocationPermission(requireContext())) {
+                val action = ListFragmentDirections.actionListFragmentToMapsFragment()
+                findNavController().navigate(action)
+            } else {
+                requestLocationPermission(this)
+            }
+
         }
 
         binding.swipeRefreshLayout.setOnRefreshListener {
             binding.swipeRefreshLayout.isRefreshing = true
             mListViewModel.refresh()
             binding.swipeRefreshLayout.isRefreshing = false
-            Snackbar.make(binding.swipeRefreshLayout,"Refresh",Snackbar.LENGTH_SHORT)
+            Snackbar.make(binding.swipeRefreshLayout, "Refresh", Snackbar.LENGTH_SHORT)
         }
     }
 
-    private fun createAddReminderDialog(){
+    private fun createAddReminderDialog() {
         val dialogBinding = DataBindingUtil.inflate<AddReminderDialogBinding>(
             LayoutInflater.from(requireContext()),
             R.layout.add_reminder_dialog,
@@ -81,13 +91,13 @@ class ListFragment : Fragment() {
 
         AlertDialog.Builder(requireContext())
             .setView(dialogBinding.root)
-            .setPositiveButton("Add Reminder"){dialog, which ->
+            .setPositiveButton("Add Reminder") { dialog, which ->
                 var title = dialogBinding.etTitle.text.toString()
                 var description = dialogBinding.etDescription.text.toString()
                 val reminderToAdd = Reminder(1, title, description, "", "", "")
                 mListViewModel.addReminder(reminderToAdd)
-                Log.i(TAG,"Success adding record")
-            }.setNegativeButton("Cancel"){dialog, which ->}
+                Log.i(TAG, "Success adding record")
+            }.setNegativeButton("Cancel") { dialog, which -> }
             .show()
     }
 
@@ -99,5 +109,35 @@ class ListFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return super.onOptionsItemSelected(item)
+    }
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+    override fun onPermissionsDenied(requestCode: Int, perms: List<String>) {
+        if (EasyPermissions.somePermissionPermanentlyDenied(this,perms)){
+            SettingsDialog.Builder(
+                requireActivity(),
+            ).build().show()
+        }else{
+            requestLocationPermission(this)
+        }
+    }
+
+    override fun onPermissionsGranted(requestCode: Int, perms: List<String>) {
+        val action = ListFragmentDirections.actionListFragmentToMapsFragment()
+        findNavController().navigate(action)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 }
