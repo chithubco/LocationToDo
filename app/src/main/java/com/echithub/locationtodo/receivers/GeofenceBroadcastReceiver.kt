@@ -35,10 +35,12 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
             if (geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
                 Log.v(TAG, "Geo Fence Enter")
+                NotificationHelper(context).createNotification()
 
             }
             if (geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
                 Log.v(TAG, "Geo Fence Exit")
+                NotificationHelper(context).createNotification()
 
             }
         }

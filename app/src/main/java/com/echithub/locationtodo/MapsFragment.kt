@@ -174,6 +174,13 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
     private fun addMarker(position: LatLng, title: String, snippet: String) {
         val marker = mMap.addMarker(MarkerOptions().position(position).title(title))
         marker.snippet = snippet
+
+        // Add Geofence for each marker
+        if (Permissions.hasBackgroundLocationPermission(requireContext())){
+            createGeofence(position) // Great a Geofence
+        }else{
+            Permissions.requestBackgroundLocationPermission(this)
+        }
     }
 
     private fun setMapStyle(googleMap: GoogleMap) {
