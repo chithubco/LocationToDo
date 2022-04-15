@@ -88,7 +88,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
         }
         setMapStyle(mMap)
         mListViewModel = ViewModelProvider(this).get(ListViewModel::class.java)
-        mListViewModel.readAllData.observe(viewLifecycleOwner, Observer { reminders ->
+        mListViewModel.reminders.observe(viewLifecycleOwner, Observer { reminders ->
             for (reminder in reminders) {
                 val location = LatLng(reminder.latitude.toDouble(), reminder.longitude.toDouble())
                 addMarker(location, reminder.title, reminder.description)

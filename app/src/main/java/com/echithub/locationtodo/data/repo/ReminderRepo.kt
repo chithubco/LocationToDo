@@ -5,20 +5,25 @@ import com.echithub.locationtodo.data.AppDatabase
 import com.echithub.locationtodo.data.model.Reminder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class ReminderRepo(private val database: AppDatabase) {
+class ReminderRepo(private val localDataSource: LocalDataSource) {
     private val TAG = "ReminderRepo"
-    private val reminderDao = database.reminderDao
+//    private val reminderDao = database.reminderDao
 
-    val readAllData: LiveData<List<Reminder>> = reminderDao.getAll()
+//    val readAllData: LiveData<List<Reminder>> = localDataSource.getReminders()4\
+//    private val myCoroutineScope = CoroutineScope(Dispatchers.IO)
+//    val readAllData: LiveData<List<Reminder>> = localDataSource.getReminders()
 
-    private val myCoroutineScope = CoroutineScope(Dispatchers.IO)
+    suspend fun getReminders():List<Reminder>{
+        return localDataSource.getReminders()
+    }
 
-    suspend fun addReminder(vararg reminders: Reminder):List<Long>{
-        return reminderDao.insertReminder(*reminders)
+    suspend fun addReminder(vararg reminders: Reminder){
+        localDataSource.saveReminder(*reminders)
     }
 
     suspend fun getReminderWithTitle(title:String):Reminder{
-        return reminderDao.getReminderWithId(title)
+        return localDataSource.getReminder(title)
     }
 }

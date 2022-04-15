@@ -20,4 +20,7 @@ interface ReminderDao {
 
     @Query("DELETE FROM reminder_table")
     fun deleteAll()
+
+    @Query("SELECT * FROM reminder_table")
+    fun getAllReminder(): List<Reminder>
 }
