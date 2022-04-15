@@ -13,11 +13,13 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.echithub.locationtodo.data.model.Reminder
+import com.echithub.locationtodo.data.repo.ReminderRepo
 import com.echithub.locationtodo.databinding.AddReminderDialogBinding
 import com.echithub.locationtodo.databinding.FragmentMapsBinding
 import com.echithub.locationtodo.receivers.GeofenceBroadcastReceiver
@@ -56,7 +58,9 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
     private var _binding: FragmentMapsBinding? = null
     private val binding get() = _binding!!
     private val TAG = "ListFragment"
-    private lateinit var mListViewModel: ListViewModel
+    private val mListViewModel by viewModels<ListViewModel>(){
+        ListViewModel.ListViewModelFactory(ReminderRepo.getRepository(requireActivity().application))
+    }
 
     private var locationList = mutableListOf<LatLng>()
     private var markerList = mutableListOf<Marker>()
@@ -87,7 +91,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
 
         }
         setMapStyle(mMap)
-        mListViewModel = ViewModelProvider(this).get(ListViewModel::class.java)
+//        mListViewModel = ViewModelProvider(this).get(ListViewModel::class.java)
         mListViewModel.reminders.observe(viewLifecycleOwner, Observer { reminders ->
             for (reminder in reminders) {
                 val location = LatLng(reminder.latitude.toDouble(), reminder.longitude.toDouble())

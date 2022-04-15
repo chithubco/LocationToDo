@@ -7,11 +7,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.echithub.locationtodo.data.model.Reminder
+import com.echithub.locationtodo.data.repo.IReminderRepo
+import com.echithub.locationtodo.data.repo.ReminderRepo
 import com.echithub.locationtodo.databinding.AddReminderDialogBinding
 import com.echithub.locationtodo.databinding.FragmentListBinding
 import com.echithub.locationtodo.ui.adapters.ReminderListAdapter
@@ -27,7 +30,9 @@ class ListFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
     private val TAG = "ListFragment"
-    private lateinit var mListViewModel: ListViewModel
+    private val mListViewModel by viewModels<ListViewModel>(){
+        ListViewModel.ListViewModelFactory(ReminderRepo.getRepository(requireActivity().application))
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,7 +46,7 @@ class ListFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mListViewModel = ViewModelProvider(this).get(ListViewModel::class.java)
+//        mListViewModel = ViewModelProvider(this).get(ListViewModel::class.java)
 
         val adapter = ReminderListAdapter(arrayListOf())
         binding.reminderRecycleView.adapter = adapter

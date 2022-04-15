@@ -2,21 +2,20 @@ package com.echithub.locationtodo.ui.viewmodel
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.echithub.locationtodo.data.AppDatabase
 import com.echithub.locationtodo.data.model.Reminder
+import com.echithub.locationtodo.data.repo.IReminderRepo
 import com.echithub.locationtodo.data.repo.LocalDataSource
 import com.echithub.locationtodo.data.repo.ReminderRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ListViewModel(application: Application):AndroidViewModel(application) {
+class ListViewModel(private var repo: IReminderRepo):ViewModel() {
+//class ListViewModel(private var repo: ReminderRepo):AndroidViewModel(application) {
 
 //    lateinit var readAllData: LiveData<List<Reminder>>
-    private var repo: ReminderRepo = ReminderRepo(LocalDataSource(AppDatabase.getDatabase(getApplication()).reminderDao))
+//    private var repo: ReminderRepo = ReminderRepo(LocalDataSource(AppDatabase.getDatabase(getApplication()).reminderDao))
     val hasError = MutableLiveData<Boolean>()
     val isLoading = MutableLiveData<Boolean>()
     val reminders = MutableLiveData<List<Reminder>>()
@@ -51,5 +50,12 @@ class ListViewModel(application: Application):AndroidViewModel(application) {
 
     override fun onCleared() {
         super.onCleared()
+    }
+    @Suppress("UNCHECKED_CAST")
+    class ListViewModelFactory (
+        private val reminderRepository: IReminderRepo
+    ) : ViewModelProvider.NewInstanceFactory() {
+        override fun <T : ViewModel> create(modelClass: Class<T>) =
+            (ListViewModel(reminderRepository) as T)
     }
 }
