@@ -12,10 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ListViewModel(private var repo: IReminderRepo):ViewModel() {
-//class ListViewModel(private var repo: ReminderRepo):AndroidViewModel(application) {
 
-//    lateinit var readAllData: LiveData<List<Reminder>>
-//    private var repo: ReminderRepo = ReminderRepo(LocalDataSource(AppDatabase.getDatabase(getApplication()).reminderDao))
     val hasError = MutableLiveData<Boolean>()
     val isLoading = MutableLiveData<Boolean>()
     val reminders = MutableLiveData<List<Reminder>>()
