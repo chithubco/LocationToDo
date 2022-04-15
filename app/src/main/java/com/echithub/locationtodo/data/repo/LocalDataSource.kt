@@ -4,13 +4,13 @@ import androidx.lifecycle.LiveData
 import com.echithub.locationtodo.data.dao.ReminderDao
 import com.echithub.locationtodo.data.model.Reminder
 
-class LocalDataSource(private val reminderDao: ReminderDao):IDataSource {
+class LocalDataSource constructor(private val reminderDao: ReminderDao):IDataSource {
 
     override suspend fun getReminders(): List<Reminder> {
         return reminderDao.getAllReminder()
     }
 
-    override suspend fun refreshReminder() {
+    override suspend fun refreshReminder(): List<Reminder> {
         TODO("Not yet implemented")
     }
 
@@ -18,8 +18,8 @@ class LocalDataSource(private val reminderDao: ReminderDao):IDataSource {
         return reminderDao.getReminderWithId(title)
     }
 
-    override suspend fun saveReminder(vararg reminder: Reminder){
-        reminderDao.insertReminder(*reminder)
+    override suspend fun saveReminder(reminder: Reminder): Long{
+        return reminderDao.insertReminder(reminder)
     }
 
 

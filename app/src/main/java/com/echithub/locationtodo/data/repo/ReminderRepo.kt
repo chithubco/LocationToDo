@@ -7,23 +7,25 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ReminderRepo(private val localDataSource: LocalDataSource) {
-    private val TAG = "ReminderRepo"
-//    private val reminderDao = database.reminderDao
-
-//    val readAllData: LiveData<List<Reminder>> = localDataSource.getReminders()4\
-//    private val myCoroutineScope = CoroutineScope(Dispatchers.IO)
-//    val readAllData: LiveData<List<Reminder>> = localDataSource.getReminders()
+class ReminderRepo constructor(private val localDataSource: IDataSource) {
 
     suspend fun getReminders():List<Reminder>{
         return localDataSource.getReminders()
     }
 
-    suspend fun addReminder(vararg reminders: Reminder){
-        localDataSource.saveReminder(*reminders)
+    suspend fun addReminder(reminder: Reminder): Long{
+        return localDataSource.saveReminder(reminder)
     }
 
     suspend fun getReminderWithTitle(title:String):Reminder{
         return localDataSource.getReminder(title)
+    }
+
+    suspend fun refreshReminders():List<Reminder>{
+        return localDataSource.refreshReminder()
+    }
+
+    suspend fun deleteReminder(reminder: Reminder){
+        localDataSource.deleteReminder(reminder)
     }
 }

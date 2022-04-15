@@ -12,15 +12,17 @@ class FakeDataSource(var reminders:MutableList<Reminder>? = mutableListOf()): ID
     }
 
     override suspend fun getReminder(title: String): Reminder {
-        TODO("Not yet implemented")
+        return reminders?.find { it.title == title } ?: Reminder(1,"","","","","")
     }
 
-    override suspend fun refreshReminder() {
-        TODO("Not yet implemented")
+    override suspend fun refreshReminder(): List<Reminder> {
+        return reminders!!
     }
 
-    override suspend fun saveReminder(vararg reminder: Reminder){
-        reminders?.addAll(reminder)
+    override suspend fun saveReminder(reminder: Reminder): Long{
+        reminders?.add(reminder)
+        val reminderToReturn = reminders?.find { it.title == reminder.title }!!
+        return reminderToReturn.id
     }
 
     override suspend fun deleteReminder(reminder: Reminder) {
