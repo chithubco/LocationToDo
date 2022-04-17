@@ -31,19 +31,23 @@ class ReminderRepo constructor(private val localDataSource: IDataSource) : IRemi
         localDataSource.deleteReminder(reminder)
     }
 
-    companion object {
-        @Volatile
-        private var INSTANCE: ReminderRepo? = null
-
-        fun getRepository(app: Application): ReminderRepo {
-            return INSTANCE ?: synchronized(this) {
-                val database = Room.databaseBuilder(app,
-                    AppDatabase::class.java, "reminder_table")
-                    .build()
-                ReminderRepo(LocalDataSource(database.reminderDao)).also {
-                    INSTANCE = it
-                }
-            }
-        }
+    override suspend fun deleteAllReminder() {
+        localDataSource.deleteAllReminders()
     }
+
+//    companion object {
+//        @Volatile
+//        private var INSTANCE: ReminderRepo? = null
+//
+//        fun getRepository(app: Application): ReminderRepo {
+//            return INSTANCE ?: synchronized(this) {
+//                val database = Room.databaseBuilder(app,
+//                    AppDatabase::class.java, "reminder_table")
+//                    .build()
+//                ReminderRepo(LocalDataSource(database.reminderDao)).also {
+//                    INSTANCE = it
+//                }
+//            }
+//        }
+//    }
 }

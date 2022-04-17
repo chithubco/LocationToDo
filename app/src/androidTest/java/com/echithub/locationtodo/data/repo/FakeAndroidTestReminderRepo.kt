@@ -1,18 +1,19 @@
 package com.echithub.locationtodo.data.repo
-
 import androidx.lifecycle.MutableLiveData
 import com.echithub.locationtodo.data.model.Reminder
-import com.echithub.locationtodo.data.source.FakeReminderData
+import com.echithub.locationtodo.data.repo.source.FakeReminderData.REMINDER_1
+import com.echithub.locationtodo.data.repo.source.FakeReminderData.REMINDER_2
+import com.echithub.locationtodo.data.repo.source.FakeReminderData.REMINDER_3
+import com.echithub.locationtodo.data.repo.source.FakeReminderData.REMINDER_4
 import kotlinx.coroutines.runBlocking
 
-class FakeReminderRepo: IReminderRepo {
-
+class FakeAndroidTestReminderRepo: IReminderRepo {
     private val localReminder = mutableListOf<Reminder>(
-        FakeReminderData.REMINDER_1,
-        FakeReminderData.REMINDER_2,
-        FakeReminderData.REMINDER_3
+        REMINDER_1,
+        REMINDER_2,
+        REMINDER_3
     )
-    private val newReminder = listOf(FakeReminderData.REMINDER_4)
+    private val newReminder = listOf(REMINDER_4)
 
     private val observableReminders = MutableLiveData<List<Reminder>>()
 
@@ -26,7 +27,7 @@ class FakeReminderRepo: IReminderRepo {
     }
 
     override suspend fun getReminderWithTitle(title: String): Reminder {
-        return localReminder?.find { it.title == title }!!
+        return localReminder.find { it.title == title }!!
     }
 
     override suspend fun refreshReminders(): List<Reminder> {

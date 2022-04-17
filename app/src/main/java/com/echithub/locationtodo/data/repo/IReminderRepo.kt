@@ -8,4 +8,5 @@ interface IReminderRepo {
     suspend fun getReminderWithTitle(title: String): Reminder
     suspend fun refreshReminders(): List<Reminder>
     suspend fun deleteReminder(reminder: Reminder)
+    suspend fun deleteAllReminder()
 }

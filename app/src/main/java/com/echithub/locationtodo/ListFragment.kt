@@ -3,18 +3,14 @@ package com.echithub.locationtodo
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.echithub.locationtodo.data.model.Reminder
-import com.echithub.locationtodo.data.repo.IReminderRepo
-import com.echithub.locationtodo.data.repo.ReminderRepo
 import com.echithub.locationtodo.databinding.AddReminderDialogBinding
 import com.echithub.locationtodo.databinding.FragmentListBinding
 import com.echithub.locationtodo.ui.adapters.ReminderListAdapter
@@ -25,29 +21,29 @@ import com.google.android.material.snackbar.Snackbar
 import com.vmadalin.easypermissions.EasyPermissions
 import com.vmadalin.easypermissions.dialogs.SettingsDialog
 
-class ListFragment : Fragment(), EasyPermissions.PermissionCallbacks {
+class ListFragment : Fragment(R.layout.fragment_list), EasyPermissions.PermissionCallbacks {
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
     private val TAG = "ListFragment"
     private val mListViewModel by viewModels<ListViewModel>(){
-        ListViewModel.ListViewModelFactory(ReminderRepo.getRepository(requireActivity().application))
+        ListViewModel.ListViewModelFactory((requireContext().applicationContext as ToDoApplication).reminderRepo)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentListBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
-        return binding.root
-    }
+//    override fun onCreateView(
+//        inflater: LayoutInflater, container: ViewGroup?,
+//        savedInstanceState: Bundle?
+//    ): View {
+//        _binding = FragmentListBinding.inflate(inflater, container, false)
+////        setHasOptionsMenu(true)
+//        return binding.root
+//    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        mListViewModel = ViewModelProvider(this).get(ListViewModel::class.java)
-
+        _binding = FragmentListBinding.bind(view)
+        setHasOptionsMenu(true)
         val adapter = ReminderListAdapter(arrayListOf())
         binding.reminderRecycleView.adapter = adapter
         binding.reminderRecycleView.layoutManager = LinearLayoutManager(requireContext())

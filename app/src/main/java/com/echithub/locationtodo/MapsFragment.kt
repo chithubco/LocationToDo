@@ -59,7 +59,8 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
     private val binding get() = _binding!!
     private val TAG = "ListFragment"
     private val mListViewModel by viewModels<ListViewModel>(){
-        ListViewModel.ListViewModelFactory(ReminderRepo.getRepository(requireActivity().application))
+//        ListViewModel.ListViewModelFactory(ReminderRepo.getRepository(requireActivity().application))
+        ListViewModel.ListViewModelFactory((requireContext().applicationContext as ToDoApplication).reminderRepo)
     }
 
     private var locationList = mutableListOf<LatLng>()

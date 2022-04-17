@@ -28,6 +28,6 @@ class LocalDataSource constructor(private val reminderDao: ReminderDao):IDataSou
     }
 
     override suspend fun deleteAllReminders() {
-        TODO("Not yet implemented")
+        reminderDao.deleteAll()
     }
 }
