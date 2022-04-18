@@ -5,8 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.echithub.locationtodo.ListFragmentDirections
 import com.echithub.locationtodo.R
 import com.echithub.locationtodo.data.model.Reminder
+import androidx.navigation.Navigation
 
 class ReminderListAdapter(val reminderList: ArrayList<Reminder>):RecyclerView.Adapter<ReminderListAdapter.MyViewHolder>(){
 
@@ -26,7 +28,8 @@ class ReminderListAdapter(val reminderList: ArrayList<Reminder>):RecyclerView.Ad
         holder.itemView.findViewById<TextView>(R.id.tv_lat_long).text = "Lat : ${currentItem.latitude} , Long : ${currentItem.longitude}"
 
         holder.itemView.setOnClickListener {
-
+            val action = ListFragmentDirections.actionListFragmentToDetailFragment(currentItem)
+            Navigation.findNavController(it).navigate(action)
         }
     }
 

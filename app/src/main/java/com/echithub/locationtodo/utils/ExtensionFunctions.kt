@@ -9,7 +9,7 @@ object ExtensionFunctions {
     }
 
     fun View.hide(){
-        this.visibility = View.INVISIBLE
+        this.visibility = View.GONE
     }
 
     fun Button.enable(){

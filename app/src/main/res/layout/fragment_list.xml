@@ -6,17 +6,27 @@
     android:layout_height="match_parent"
     tools:context=".ListFragment">
 
+
     <TextView
-        android:id="@+id/tv_reminder_List"
-        android:layout_width="match_parent"
+        android:id="@+id/tv_no_reminder_data"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        android:text="Reminder List"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:text="No Reminder Data Found"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/swipe_refresh_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_view_in_map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Click to View In Map"
+        android:clickable="false"
+        app:layout_constraintBottom_toBottomOf="@+id/fab_add_reminder"
+        app:layout_constraintEnd_toStartOf="@id/fab_add_reminder" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_reminder"
@@ -24,6 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
+
         android:clickable="true"
         android:src="@drawable/ic_map"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -33,11 +44,11 @@
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_reminder_List">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/reminder_recycle_view"

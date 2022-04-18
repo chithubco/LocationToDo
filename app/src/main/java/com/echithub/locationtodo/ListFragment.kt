@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -44,14 +46,40 @@ class ListFragment : Fragment(R.layout.fragment_list), EasyPermissions.Permissio
 
         _binding = FragmentListBinding.bind(view)
         setHasOptionsMenu(true)
+
+        setupObservers()
+        setupListeners()
+    }
+
+    private fun setupObservers(){
         val adapter = ReminderListAdapter(arrayListOf())
         binding.reminderRecycleView.adapter = adapter
         binding.reminderRecycleView.layoutManager = LinearLayoutManager(requireContext())
-
+        binding.tvNoReminderData.visibility = View.GONE
         // Observe Livedata
         mListViewModel.reminders.observe(viewLifecycleOwner, Observer { reminders ->
-            adapter.setData(reminders)
+
+            if (reminders.isEmpty()){
+                Log.i("Reminder Data",reminders.toString())
+                binding.tvNoReminderData.visibility = View.VISIBLE
+                binding.tvViewInMap.text = "Click to add reminders in Map"
+            }else{
+                binding.tvNoReminderData.visibility = View.GONE
+                adapter.setData(reminders)
+                binding.tvViewInMap.text = "Click to view/add reminders in Map"
+            }
         })
+        mListViewModel.refresh()
+    }
+
+    private fun setupListeners(){
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            binding.swipeRefreshLayout.isRefreshing = true
+            mListViewModel.refresh()
+            binding.swipeRefreshLayout.isRefreshing = false
+            Snackbar.make(binding.swipeRefreshLayout, "Refresh", Snackbar.LENGTH_SHORT)
+        }
 
         binding.fabAddReminder.setOnClickListener {
 
@@ -62,13 +90,6 @@ class ListFragment : Fragment(R.layout.fragment_list), EasyPermissions.Permissio
                 requestLocationPermission(this)
             }
 
-        }
-
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            binding.swipeRefreshLayout.isRefreshing = true
-            mListViewModel.refresh()
-            binding.swipeRefreshLayout.isRefreshing = false
-            Snackbar.make(binding.swipeRefreshLayout, "Refresh", Snackbar.LENGTH_SHORT)
         }
     }
 

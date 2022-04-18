@@ -45,20 +45,17 @@ class ListFragmentTest {
     fun activeReminderList_DisplayInUn() = runBlockingTest {
         val activeReminder = Reminder(
             1,
-            "Test Reminder",
+            "Barumak",
             "Description for test Reminder",
-            "134,8989",
-            "78.90900",
+            "9.052596841535514",
+            "7.452365927641011",
             "2022-01-01"
         )
         repository.addReminder(activeReminder)
 
         launchFragmentInContainer<ListFragment>(Bundle(),R.style.Theme_LocationToDo)
-        onView(withId(R.id.tv_reminder_List)).check(matches(withText("Reminder List")))
-        onView(withId(R.id.tv_reminder_List)).check(matches(isDisplayed()))
-//        Espresso.closeSoftKeyboard()
-//        onView(withId(R.id.fab_add_reminder))
-//            .perform(click())
+//        onView(withId(R.id.tv_reminder_List)).check(matches(withText("Reminder List")))
+//        onView(withId(R.id.tv_reminder_List)).check(matches(isDisplayed()))
 
         Thread.sleep(4000)
     }

@@ -35,10 +35,10 @@ class DetailFragment : BottomSheetDialogFragment() {
         binding.tvTitle.text = args.reminder.title
         binding.tvDescription.text = args.reminder.description
 
-        binding.btnBack.setOnClickListener {
-            val direction = DetailFragmentDirections.actionDetailFragmentToListFragment()
-            findNavController().navigate(direction)
-        }
+//        binding.btnBack.setOnClickListener {
+//            val direction = DetailFragmentDirections.actionDetailFragmentToListFragment()
+//            findNavController().navigate(direction)
+//        }
     }
 
     override fun onDestroy() {
