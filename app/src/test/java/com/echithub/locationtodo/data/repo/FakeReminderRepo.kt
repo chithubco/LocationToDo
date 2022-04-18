@@ -5,7 +5,9 @@ import com.echithub.locationtodo.data.model.Reminder
 import com.echithub.locationtodo.data.source.FakeReminderData
 import kotlinx.coroutines.runBlocking
 
-class FakeReminderRepo: IReminderRepo {
+class FakeReminderRepo : IReminderRepo {
+
+    private var shouldReturnError = false
 
     private val localReminder = mutableListOf<Reminder>(
         FakeReminderData.REMINDER_1,
@@ -16,7 +18,13 @@ class FakeReminderRepo: IReminderRepo {
 
     private val observableReminders = MutableLiveData<List<Reminder>>()
 
+    fun setReturnError(value: Boolean){
+        shouldReturnError = value
+    }
     override suspend fun getReminders(): List<Reminder> {
+//        if (shouldReturnError){
+//            return Error(Exception("Test Exception"))
+//        }
         return localReminder
     }
 
@@ -41,8 +49,8 @@ class FakeReminderRepo: IReminderRepo {
         localReminder.clear()
     }
 
-    fun createReminder(vararg reminders: Reminder){
-        for (reminder in reminders){
+    fun createReminder(vararg reminders: Reminder) {
+        for (reminder in reminders) {
             localReminder.add(reminder)
         }
         runBlocking { refreshReminders() }

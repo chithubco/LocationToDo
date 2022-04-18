@@ -18,7 +18,7 @@ object ServiceLocator {
     @Volatile
     var reminderRepo: IReminderRepo? = null
 
-    @VisibleForTesting
+    @VisibleForTesting set
 
     fun provideTasksRepository(context: Context): IReminderRepo {
         synchronized(this) {

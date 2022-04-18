@@ -2,6 +2,14 @@ package com.echithub.locationtodo
 
 import android.os.Bundle
 import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.scrollTo
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.echithub.locationtodo.data.model.Reminder
@@ -13,6 +21,8 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -44,6 +54,32 @@ class ListFragmentTest {
         repository.addReminder(activeReminder)
 
         launchFragmentInContainer<ListFragment>(Bundle(),R.style.Theme_LocationToDo)
+        onView(withId(R.id.tv_reminder_List)).check(matches(withText("Reminder List")))
+        onView(withId(R.id.tv_reminder_List)).check(matches(isDisplayed()))
+//        Espresso.closeSoftKeyboard()
+//        onView(withId(R.id.fab_add_reminder))
+//            .perform(click())
+
         Thread.sleep(4000)
+    }
+
+
+    @Test
+    fun click_fab_onListView_NavigateToMapFragment() = runBlockingTest {
+        // Given we are on the Task Screen
+        val scenario =  launchFragmentInContainer<ListFragment>(Bundle(),R.style.Theme_LocationToDo)
+
+        val navController = mock(NavController::class.java)
+        scenario.onFragment {
+            Navigation.setViewNavController(it.view!!, navController)
+        }
+        // WHEN
+        onView(withId(R.id.fab_add_reminder))
+            .perform(click())
+
+        // THEN
+        verify(navController).navigate(ListFragmentDirections.actionListFragmentToMapsFragment())
+
+
     }
 }

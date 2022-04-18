@@ -9,6 +9,7 @@ import com.echithub.locationtodo.data.source.FakeReminderData.REMINDER_2
 import com.echithub.locationtodo.data.source.FakeReminderData.REMINDER_3
 import com.echithub.locationtodo.data.source.FakeReminderData.REMINDER_4
 import com.echithub.locationtodo.getOrAwaitValue
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
@@ -63,5 +64,12 @@ class ListViewModelTest {
         val value = listViewModel.reminders.getOrAwaitValue()
         assertThat(value,not(nullValue()))
         assertThat(value.size,`is` (7))
+    }
+
+    @Test
+    fun loadReminder_loading(){
+        assertThat(listViewModel.isLoading.getOrAwaitValue(),`is`(false))
+        listViewModel.refresh()
+        assertThat(listViewModel.isLoading.getOrAwaitValue(),`is`(true))
     }
 }

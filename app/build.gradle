@@ -39,16 +39,22 @@ android {
     }
     dataBinding {
         enabled true
+        enabledForTests true
     }
     packagingOptions {
         resources.excludes.add("META-INF/*")
         exclude 'META-INF/DEPENDENCIES'
+    }
+    testOptions.unitTests {
+        includeAndroidResources = true
+        returnDefaultValues = true
     }
 }
 
 dependencies {
     implementation 'com.google.android.gms:play-services-maps:17.0.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    androidTestImplementation 'androidx.test:rules:1.4.1-alpha05'
     def roomVersion = '2.1.0-rc01'
     def navVersion = '2.1.0-alpha05'
     def retrofitVersion = '2.3.0'
@@ -75,6 +81,7 @@ dependencies {
     def recyclerViewVersion = '1.0.0'
     def rulesVersion = '1.0.1'
     def truthVersion = '0.44'
+    espressoVersion = '3.2.0-beta01'
 
 
     implementation 'androidx.core:core-ktx:1.7.0'
@@ -162,7 +169,9 @@ dependencies {
 //    androidTestImplementation "androidx.test.runner:$androidxTest"
     implementation "androidx.test:runner:1.4.0"
     implementation "androidx.test:core:1.4.0"
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
+    androidTestImplementation "androidx.arch.core:core-testing:$archTestingVersion"
+//    androidTestImplementation "org.hamcrest:hamcrest-all:$hamcrestVersion"
 
 
     androidTestImplementation "junit:junit:$junitVersion"
@@ -172,6 +181,7 @@ dependencies {
 
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:2.28.1'
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
+    implementation "androidx.test.espresso:espresso-idling-resource:$espressoVersion"
 }
 
 apply plugin: 'com.google.gms.google-services'

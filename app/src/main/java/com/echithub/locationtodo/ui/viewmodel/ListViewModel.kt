@@ -22,9 +22,11 @@ class ListViewModel(private var repo: IReminderRepo):ViewModel() {
     }
 
     fun refresh(){
+        isLoading.value = true
         viewModelScope.launch(Dispatchers.IO){
             val remindersList = repo.getReminders()
             remindersRetrieved(remindersList)
+            isLoading.postValue(false)
         }
     }
 

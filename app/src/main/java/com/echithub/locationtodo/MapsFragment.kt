@@ -44,7 +44,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnPoiClickListener, EasyPermissions.PermissionCallbacks {
+class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickListener,
+    GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnPoiClickListener,
+    EasyPermissions.PermissionCallbacks {
 
     private lateinit var mMap: GoogleMap
     private lateinit var geofencingClient: GeofencingClient
@@ -58,8 +60,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
     private var _binding: FragmentMapsBinding? = null
     private val binding get() = _binding!!
     private val TAG = "ListFragment"
-    private val mListViewModel by viewModels<ListViewModel>(){
-//        ListViewModel.ListViewModelFactory(ReminderRepo.getRepository(requireActivity().application))
+    private val mListViewModel by viewModels<ListViewModel>() {
         ListViewModel.ListViewModelFactory((requireContext().applicationContext as ToDoApplication).reminderRepo)
     }
 
@@ -71,15 +72,6 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
 
     @SuppressLint("MissingPermission")
     private val callback = OnMapReadyCallback { googleMap ->
-        /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
-         * If Google Play services is not installed on the device, the user will be prompted to
-         * install it inside the SupportMapFragment. This method will only be triggered once the
-         * user has installed Google Play services and returned to the app.
-         */
         mMap = googleMap
         mMap.isMyLocationEnabled = true
         // Create a Geofence instance
@@ -92,7 +84,6 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
 
         }
         setMapStyle(mMap)
-//        mListViewModel = ViewModelProvider(this).get(ListViewModel::class.java)
         mListViewModel.reminders.observe(viewLifecycleOwner, Observer { reminders ->
             for (reminder in reminders) {
                 val location = LatLng(reminder.latitude.toDouble(), reminder.longitude.toDouble())
@@ -107,19 +98,12 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
 
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-//        return inflater.inflate(R.layout.fragment_maps, container, false)
-        _binding = FragmentMapsBinding.inflate(inflater, container, false)
-        setHasOptionsMenu(true)
-        return binding.root
-    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        _binding = FragmentMapsBinding.bind(view)
+        setHasOptionsMenu(true)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
     }
@@ -127,9 +111,9 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
     private fun onMapClicked() {
         mMap.setOnMapClickListener {
 
-            if (Permissions.hasBackgroundLocationPermission(requireContext())){
+            if (Permissions.hasBackgroundLocationPermission(requireContext())) {
                 createGeofence(it) // Great a Geofence
-            }else{
+            } else {
                 Permissions.requestBackgroundLocationPermission(this)
             }
 
@@ -181,9 +165,9 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
         marker.snippet = snippet
 
         // Add Geofence for each marker
-        if (Permissions.hasBackgroundLocationPermission(requireContext())){
+        if (Permissions.hasBackgroundLocationPermission(requireContext())) {
             createGeofence(position) // Great a Geofence
-        }else{
+        } else {
             Permissions.requestBackgroundLocationPermission(this)
         }
     }
@@ -214,7 +198,14 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
     override fun onMarkerClick(marker: Marker): Boolean {
         Log.i("Market", marker.title)
         // Fet Reminder with this title
-        val reminder = Reminder(1,marker.title,marker.snippet,marker.position.latitude.toString(),marker.position.longitude.toString(),"")
+        val reminder = Reminder(
+            1,
+            marker.title,
+            marker.snippet,
+            marker.position.latitude.toString(),
+            marker.position.longitude.toString(),
+            ""
+        )
 //        lifecycleScope.launch(Dispatchers.IO) {
 //            val reminder = mListViewModel.getReminderWithId(marker.title)
 //            displayDetail(reminder)
@@ -230,10 +221,10 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
     }
 
     @SuppressLint("MissingPermission")
-    private fun createGeofence(position: LatLng){
+    private fun createGeofence(position: LatLng) {
         val geofence = Geofence.Builder()
             .setRequestId(GEOFENCE_REQUEST_ID)
-            .setCircularRegion(position.latitude,position.longitude,GEOFENCE_RADIUS_IN_METERS)
+            .setCircularRegion(position.latitude, position.longitude, GEOFENCE_RADIUS_IN_METERS)
             .setLoiteringDelay(GEOFENCE_LOITERING_DELAY_IN_MILLISECONDS)
             .setExpirationDuration(GEOFENCE_EXPIRATION_IN_MILLISECONDS)
             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT or Geofence.GEOFENCE_TRANSITION_DWELL)
@@ -251,8 +242,10 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
                 geofencingClient.addGeofences(request, geofencePendingIntent)?.run {
                     addOnSuccessListener {
                         // Geofences added.
-                        Toast.makeText(requireActivity(), "Geofence Added",
-                            Toast.LENGTH_LONG)
+                        Toast.makeText(
+                            requireActivity(), "Geofence Added",
+                            Toast.LENGTH_LONG
+                        )
                             .show()
                         Log.e("Add Geofence", geofence.requestId)
                     }
@@ -270,7 +263,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
         createAddReminderDialog(poi.latLng)
     }
 
-    private fun checkDeviceLocationSettingsAndStartGeofence(resolve:Boolean = true){
+    private fun checkDeviceLocationSettingsAndStartGeofence(resolve: Boolean = true) {
         val locationRequest = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_LOW_POWER
         }
@@ -279,10 +272,12 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
         val locationSettingsResponseTask =
             settingsClient.checkLocationSettings(builder.build())
         locationSettingsResponseTask.addOnFailureListener { exception ->
-            if (exception is ResolvableApiException && resolve){
+            if (exception is ResolvableApiException && resolve) {
                 try {
-                    exception.startResolutionForResult(requireActivity(),
-                        REQUEST_TURN_DEVICE_LOCATION_ON)
+                    exception.startResolutionForResult(
+                        requireActivity(),
+                        REQUEST_TURN_DEVICE_LOCATION_ON
+                    )
                 } catch (sendEx: IntentSender.SendIntentException) {
                     Log.d(TAG, "Error getting location settings resolution: " + sendEx.message)
                 }
@@ -291,8 +286,8 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
             }
         }
         locationSettingsResponseTask.addOnCompleteListener {
-            if ( it.isSuccessful ) {
-                createGeofence(LatLng(123.990,123.909))
+            if (it.isSuccessful) {
+                createGeofence(LatLng(123.990, 123.909))
             }
         }
     }
@@ -305,11 +300,11 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
     }
 
     override fun onPermissionsDenied(requestCode: Int, perms: List<String>) {
-        if (EasyPermissions.somePermissionPermanentlyDenied(this,perms)){
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
             SettingsDialog.Builder(
                 requireActivity(),
             ).build().show()
-        }else{
+        } else {
             Permissions.requestLocationPermission(this)
         }
     }
@@ -317,6 +312,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
     override fun onPermissionsGranted(requestCode: Int, perms: List<String>) {
         TODO("Not yet implemented")
     }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -325,6 +321,7 @@ class MapsFragment : Fragment(), GoogleMap.OnMarkerClickListener, GoogleMap.OnMy
 //        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
+
     companion object {
         internal const val ACTION_GEOFENCE_EVENT =
             "HuntMainActivity.treasureHunt.action.ACTION_GEOFENCE_EVENT"
