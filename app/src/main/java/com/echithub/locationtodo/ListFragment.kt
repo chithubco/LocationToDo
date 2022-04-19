@@ -3,6 +3,7 @@ package com.echithub.locationtodo
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -19,6 +20,7 @@ import com.echithub.locationtodo.ui.adapters.ReminderListAdapter
 import com.echithub.locationtodo.ui.viewmodel.ListViewModel
 import com.echithub.locationtodo.utils.Permissions.hasLocationPermission
 import com.echithub.locationtodo.utils.Permissions.requestLocationPermission
+import com.firebase.ui.auth.AuthUI
 import com.google.android.material.snackbar.Snackbar
 import com.vmadalin.easypermissions.EasyPermissions
 import com.vmadalin.easypermissions.dialogs.SettingsDialog
@@ -120,6 +122,13 @@ class ListFragment : Fragment(R.layout.fragment_list), EasyPermissions.Permissio
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.menu_logout ->{
+                Toast.makeText(requireContext(), "Logout Operation", Toast.LENGTH_LONG).show()
+                AuthUI.getInstance().signOut(requireContext())
+                findNavController().navigate(ListFragmentDirections.actionListFragmentToMainFragment())
+            }
+        }
         return super.onOptionsItemSelected(item)
     }
 

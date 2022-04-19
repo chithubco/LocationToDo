@@ -79,7 +79,7 @@ class MainFragment : Fragment() {
             .build(),SIGN_IN_REQUEST_CODE)
     }
 
-    private fun logout() {
+    fun logout() {
         AuthUI.getInstance().signOut(requireContext())
     }
 

@@ -95,9 +95,15 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
         mMap.setOnMyLocationButtonClickListener(this)
         onMapClicked()
         onMapLongClick()
+        addListeners()
 
     }
 
+    fun addListeners(){
+        binding.btnBackToList.setOnClickListener {
+            findNavController().navigate(MapsFragmentDirections.actionMapsFragmentToListFragment())
+        }
+    }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

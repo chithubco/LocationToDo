@@ -12,4 +12,6 @@
     <string name="description">This is the place that made be become a great developer</string>
     <string name="lat_long">Lat : 234 , Long 34.90</string>
     <string name="latlong_unit_format">%f km</string>
+    <string name="back_to_list_of_reminders">Back to list of reminders</string>
+    <string name="long_press_to_add_reminder">Long press to add reminder</string>
 </resources>
