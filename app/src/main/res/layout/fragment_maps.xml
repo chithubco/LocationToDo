@@ -17,7 +17,7 @@
         tools:context=".MapsFragment" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/tv_action_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/long_press_to_add_reminder"

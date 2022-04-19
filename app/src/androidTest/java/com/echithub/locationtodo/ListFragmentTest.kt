@@ -15,8 +15,10 @@ import androidx.test.filters.MediumTest
 import com.echithub.locationtodo.data.model.Reminder
 import com.echithub.locationtodo.data.repo.FakeAndroidTestReminderRepo
 import com.echithub.locationtodo.data.repo.IReminderRepo
+import com.echithub.locationtodo.data.repo.source.FakeReminderData.REMINDER_1
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
+import org.hamcrest.CoreMatchers.not
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -58,6 +60,39 @@ class ListFragmentTest {
 //        onView(withId(R.id.tv_reminder_List)).check(matches(isDisplayed()))
 
         Thread.sleep(4000)
+    }
+
+    @Test
+    fun `list_fragement_with_no_reminders_onscreen`() = runBlockingTest {
+        //GIVEN The reminders list is empty
+        repository.deleteAllReminder()
+
+        //Then
+        launchFragmentInContainer<ListFragment>(Bundle(),R.style.Theme_LocationToDo)
+
+        Espresso.onView(withId(R.id.tv_no_reminder_data)).check(matches(withText("No Reminder Data Found")))
+        Espresso.onView(withId(R.id.tv_no_reminder_data)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun `list_fragement_with_reminders_off_screen`() = runBlockingTest {
+        //GIVEN The reminders list is empty
+        repository.addReminder(REMINDER_1)
+
+        //Then
+        launchFragmentInContainer<ListFragment>(Bundle(),R.style.Theme_LocationToDo)
+
+        Espresso.onView(withId(R.id.tv_no_reminder_data)).check(matches(withText("No Reminder Data Found")))
+        Espresso.onView(withId(R.id.tv_no_reminder_data)).check(matches(not(isDisplayed())))
+    }
+
+    @Test
+    fun `check_all_view_elements_are_on_screen`() = runBlockingTest {
+
+        repository.deleteAllReminder()
+        launchFragmentInContainer<ListFragment>(Bundle(),R.style.Theme_LocationToDo)
+        Espresso.onView(withId(R.id.tv_view_in_map)).check(matches(isDisplayed()))
+        Espresso.onView(withId(R.id.fab_add_reminder)).check(matches(isDisplayed()))
     }
 
 

@@ -11,7 +11,8 @@
         android:id="@+id/tv_no_reminder_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No Reminder Data Found"
+        android:text="@string/no_reminder_data_found"
+        android:contentDescription="No reminders on screen"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/swipe_refresh_layout"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,8 +24,9 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="Click to View In Map"
         android:clickable="false"
+        android:contentDescription="View list of deminders in map"
+        android:text="@string/click_to_view_in_map"
         app:layout_constraintBottom_toBottomOf="@+id/fab_add_reminder"
         app:layout_constraintEnd_toStartOf="@id/fab_add_reminder" />
 
@@ -34,8 +36,8 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-
         android:clickable="true"
+        android:contentDescription="Click to view map"
         android:src="@drawable/ic_map"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -52,9 +54,9 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/reminder_recycle_view"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:layout_width="0dp"
-            android:layout_height="0dp" >
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager">
 
         </androidx.recyclerview.widget.RecyclerView>
 
