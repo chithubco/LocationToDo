@@ -1,5 +1,6 @@
 package com.echithub.locationtodo.data.repo.dao
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -7,6 +8,7 @@ import androidx.test.filters.SmallTest
 import com.echithub.locationtodo.data.AppDatabase
 import com.echithub.locationtodo.data.model.Reminder
 import com.echithub.locationtodo.data.repo.source.FakeReminderData.REMINDER_1
+import com.echithub.locationtodo.data.repo.source.FakeReminderData.REMINDER_2
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers.`is`
@@ -24,6 +26,9 @@ class ReminderDaoTest {
 
     private lateinit var database: AppDatabase
 
+//    @Rule
+//    var instantTaskExecutorRule: InstantTaskExecutorRule()
+
     @Before
     fun initDb() {
         database = Room.inMemoryDatabaseBuilder(
@@ -34,6 +39,7 @@ class ReminderDaoTest {
 
     @After
     fun closeDb() {
+        database.reminderDao.deleteAll()
         database.close()
     }
 
@@ -51,6 +57,27 @@ class ReminderDaoTest {
         assertThat(loaded.latitude, `is`(reminder.latitude))
         assertThat(loaded.longitude, `is`(reminder.longitude))
         assertThat(loaded.createdDate, `is`(reminder.createdDate))
+    }
+
+    @Test
+    fun `all_reminder_from_dao`() = runBlockingTest{
+        database.reminderDao.insertReminder(REMINDER_1)
+        database.reminderDao.insertReminder(REMINDER_2)
+
+        val loaded = database.reminderDao.getAllReminder()
+
+        assertThat(loaded.size, `is`(2))
+    }
+
+    @Test
+    fun `delete_reminder_from_dao`() = runBlockingTest{
+
+        database.reminderDao.insertReminder(REMINDER_1)
+        val loaded = database.reminderDao.getAllReminder()
+        assertThat(loaded.size, `is`(1))
+
+        database.reminderDao.delete(REMINDER_1)
+//        assertThat(loaded)
     }
 
 }
