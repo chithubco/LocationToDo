@@ -167,9 +167,21 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
         // Add Geofence for each marker
         if (Permissions.hasBackgroundLocationPermission(requireContext())) {
             createGeofence(position) // Great a Geofence
+            addCircle(position)
         } else {
             Permissions.requestBackgroundLocationPermission(this)
         }
+    }
+
+    private fun addCircle(position: LatLng){
+        mMap.addCircle(
+            CircleOptions().apply {
+                center(position)
+                radius(500.0)
+                fillColor(R.color.purple_200)
+                strokeColor(R.color.purple_200)
+            }
+        )
     }
 
     private fun setMapStyle(googleMap: GoogleMap) {

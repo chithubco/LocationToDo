@@ -9,12 +9,30 @@ import com.echithub.locationtodo.ListFragmentDirections
 import com.echithub.locationtodo.R
 import com.echithub.locationtodo.data.model.Reminder
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 
 class ReminderListAdapter(val reminderList: ArrayList<Reminder>):RecyclerView.Adapter<ReminderListAdapter.MyViewHolder>(){
 
     class MyViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
 
     }
+
+//    private val diffUtil = object : DiffUtil.ItemCallback<Reminder>(){
+//        override fun areItemsTheSame(oldItem: Reminder, newItem: Reminder): Boolean {
+//            return oldItem == newItem
+//        }
+//
+//        override fun areContentsTheSame(oldItem: Reminder, newItem: Reminder): Boolean {
+//            return oldItem == newItem
+//        }
+//    }
+//
+//    private val recyclerListDiffer = AsyncListDiffer(this,diffUtil)
+//
+//    var reminders: List<Reminder>
+//    get() = recyclerListDiffer.currentList
+//    set(value) = recyclerListDiffer.submitList(value)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         return MyViewHolder(LayoutInflater.from(parent.context)
