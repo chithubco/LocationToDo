@@ -69,14 +69,6 @@ class ToDoActivityTest {
 //        onView(
 //            allOf(withId(com.firebase.ui.auth.R.id.email),
 //                isDisplayed()));
-//        onView(
-//            allOf(withId(com.firebase.ui.auth.R.id.email),
-//                isDisplayed())).perform(replaceText("michael.agbogo@echithub.com"))
-//
-//        onView(withId(com.firebase.ui.auth.R.id.button_next)).perform(click())
-//
-//        onView(allOf(withId(com.firebase.ui.auth.R.id.password)))
-//            .perform(replaceText("Letmein7"))
 //
 //        onView(withId(com.firebase.ui.auth.R.id.button_sign_in)).perform(click())
 
