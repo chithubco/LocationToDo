@@ -6,7 +6,7 @@
     <data>
         <variable
             name="reminder"
-            type="com.echithub.locationtodo.data.model.Reminder" />
+            type="com.udacity.project4.data.model.Reminder" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

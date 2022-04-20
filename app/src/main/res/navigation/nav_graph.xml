@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.echithub.locationtodo.MainFragment"
+        android:name="com.udacity.project4.MainFragment"
         android:label="Welcome"
         tools:layout="@layout/fragment_main">
         <action
@@ -18,7 +18,7 @@
     </fragment>
     <fragment
         android:id="@+id/listFragment"
-        android:name="com.echithub.locationtodo.ListFragment"
+        android:name="com.udacity.project4.ListFragment"
         android:label="Reminder List"
         tools:layout="@layout/fragment_list">
         <action
@@ -33,7 +33,7 @@
     </fragment>
     <fragment
         android:id="@+id/mapsFragment"
-        android:name="com.echithub.locationtodo.MapsFragment"
+        android:name="com.udacity.project4.MapsFragment"
         android:label="Reminder Map"
         tools:layout="@layout/fragment_maps">
         <action
@@ -45,7 +45,7 @@
     </fragment>
     <dialog
         android:id="@+id/detailFragment"
-        android:name="com.echithub.locationtodo.DetailFragment"
+        android:name="com.udacity.project4.DetailFragment"
         android:label="fragment_detail"
         tools:layout="@layout/fragment_detail" >
         <action
@@ -53,6 +53,6 @@
             app:destination="@id/listFragment" />
         <argument
             android:name="reminder"
-            app:argType="com.echithub.locationtodo.data.model.Reminder" />
+            app:argType="com.udacity.project4.data.model.Reminder" />
     </dialog>
 </navigation>
