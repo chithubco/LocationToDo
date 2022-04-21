@@ -16,4 +16,6 @@
     <string name="long_press_to_add_reminder">Long press to add reminder</string>
     <string name="click_to_view_in_map">Click to View In Map</string>
     <string name="no_reminder_data_found">No Reminder Data Found</string>
+    <string name="reminder_title">Reminder Title</string>
+    <string name="reminder_description">Reminder Description</string>
 </resources>

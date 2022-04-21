@@ -14,6 +14,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.udacity.project4.data.model.Reminder
 import com.udacity.project4.databinding.AddReminderDialogBinding
@@ -33,8 +34,11 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.udacity.project4.utils.Permissions.hasLocationPermission
 import com.vmadalin.easypermissions.EasyPermissions
 import com.vmadalin.easypermissions.dialogs.SettingsDialog
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickListener,
     GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnPoiClickListener,
@@ -65,15 +69,25 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
     @SuppressLint("MissingPermission")
     private val callback = OnMapReadyCallback { googleMap ->
         mMap = googleMap
-        mMap.isMyLocationEnabled = true
+
+        if (!hasLocationPermission(requireContext())){
+            Permissions.requestLocationPermission(this)
+        }else{
+            mMap.isMyLocationEnabled = true
+        }
+
         // Create a Geofence instance
         geofencingClient = LocationServices.getGeofencingClient(requireContext())
 
         val barumak = LatLng(9.052596841535514, 7.452365927641011)
-        mMap.addMarker(MarkerOptions().position(barumak).title("Barumak"))
+//        mMap.addMarker(MarkerOptions().position(barumak).title("Barumak"))
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(barumak, 16f))
-        mMap.uiSettings.apply {
 
+        mMap.uiSettings.apply {
+            isMyLocationButtonEnabled = true
+            isMapToolbarEnabled = false
+            isZoomControlsEnabled = true
+            isZoomGesturesEnabled = true
         }
         setMapStyle(mMap)
         mListViewModel.reminders.observe(viewLifecycleOwner, Observer { reminders ->
@@ -88,6 +102,7 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
         onMapClicked()
         onMapLongClick()
         addListeners()
+        displayInfoMessage()
 
     }
 
@@ -97,6 +112,16 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
         }
     }
 
+    // Function to display TextView and Fade it away
+    private fun displayInfoMessage(){
+        lifecycleScope.launch {
+            binding.tvActionDescription.visibility = View.VISIBLE
+            delay(2000)
+            binding.tvActionDescription.animate().alpha(0f).duration = 1000
+            delay(1000)
+            binding.tvActionDescription.visibility = View.GONE
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -109,23 +134,17 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
     private fun onMapClicked() {
         mMap.setOnMapClickListener {
 
-            if (Permissions.hasBackgroundLocationPermission(requireContext())) {
-                createGeofence(it) // Great a Geofence
-            } else {
-                Permissions.requestBackgroundLocationPermission(this)
-            }
-
         }
     }
 
     private fun onMapLongClick() {
         mMap.setOnMapLongClickListener {
-            Toast.makeText(
-                requireContext(),
-                "Long Click ${it.longitude} ${it.latitude}",
-                Toast.LENGTH_SHORT
-            ).show()
-            createAddReminderDialog(it)
+            if (Permissions.hasBackgroundLocationPermission(requireContext())) {
+                createAddReminderDialog(it)
+            } else {
+                Permissions.requestBackgroundLocationPermission(this)
+            }
+
         }
     }
 
@@ -159,11 +178,12 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
     }
 
     private fun addMarker(position: LatLng, title: String, snippet: String) {
-        val marker = mMap.addMarker(MarkerOptions().position(position).title(title))
-        marker.snippet = snippet
+
 
         // Add Geofence for each marker
         if (Permissions.hasBackgroundLocationPermission(requireContext())) {
+            val marker = mMap.addMarker(MarkerOptions().position(position).title(title))
+            marker.snippet = snippet
             createGeofence(position) // Great a Geofence
             addCircle(position)
         } else {
@@ -206,8 +226,6 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
-        Log.i("Market", marker.title)
-        // Fet Reminder with this title
         val reminder = Reminder(
             1,
             marker.title,
@@ -216,17 +234,15 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
             marker.position.longitude.toString(),
             ""
         )
-//        lifecycleScope.launch(Dispatchers.IO) {
-//            val reminder = mListViewModel.getReminderWithId(marker.title)
-//            displayDetail(reminder)
-//            Log.i("Reminder",reminder.toString())
-//        }
         displayDetail(reminder)
-//        mMap.animateCamera(CameraUpdateFactory.zoomTo(17f), null)
         return true
     }
 
     override fun onMyLocationButtonClick(): Boolean {
+        if (!hasLocationPermission(requireContext())){
+            Permissions.requestLocationPermission(this)
+            return false
+        }
         return false
     }
 
@@ -247,14 +263,14 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
             addGeofence(geofence)
         }.build()
 
-        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
+        geofencingClient.removeGeofences(geofencePendingIntent).run {
             addOnCompleteListener {
-                geofencingClient.addGeofences(request, geofencePendingIntent)?.run {
+                geofencingClient.addGeofences(request, geofencePendingIntent).run {
                     addOnSuccessListener {
                         // Geofences added.
                         Toast.makeText(
                             requireActivity(), "Geofence Added",
-                            Toast.LENGTH_LONG
+                            Toast.LENGTH_SHORT
                         )
                             .show()
                         Log.e("Add Geofence", geofence.requestId)
@@ -298,12 +314,12 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
         locationSettingsResponseTask.addOnCompleteListener {
             if (it.isSuccessful) {
                 createGeofence(LatLng(123.990, 123.909))
+
             }
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
             checkDeviceLocationSettingsAndStartGeofence(false)
         }
@@ -319,8 +335,9 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
         }
     }
 
+    @SuppressLint("MissingPermission")
     override fun onPermissionsGranted(requestCode: Int, perms: List<String>) {
-        TODO("Not yet implemented")
+        mMap.isMyLocationEnabled = true
     }
 
     override fun onRequestPermissionsResult(
@@ -331,6 +348,7 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
 //        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
+
 
     companion object {
         internal const val ACTION_GEOFENCE_EVENT =

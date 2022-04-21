@@ -33,7 +33,7 @@ object Permissions {
     fun requestBackgroundLocationPermission(fragment: Fragment) {
         EasyPermissions.requestPermissions(
             fragment,
-            "This app requires Background location permission to function",
+            "This app requires permission to add reminders",
             PERMISSION_BACKGROND_LOCATION_REQUEST_CODE,
             Manifest.permission.ACCESS_BACKGROUND_LOCATION
         )

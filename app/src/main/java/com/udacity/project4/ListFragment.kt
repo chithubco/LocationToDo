@@ -32,14 +32,6 @@ class ListFragment : Fragment(R.layout.fragment_list), EasyPermissions.Permissio
         ListViewModel.ListViewModelFactory((requireContext().applicationContext as ToDoApplication).reminderRepo)
     }
 
-//    override fun onCreateView(
-//        inflater: LayoutInflater, container: ViewGroup?,
-//        savedInstanceState: Bundle?
-//    ): View {
-//        _binding = FragmentListBinding.inflate(inflater, container, false)
-////        setHasOptionsMenu(true)
-//        return binding.root
-//    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -82,36 +74,11 @@ class ListFragment : Fragment(R.layout.fragment_list), EasyPermissions.Permissio
         }
 
         binding.fabAddReminder.setOnClickListener {
-
-            if (hasLocationPermission(requireContext())) {
-                val action = ListFragmentDirections.actionListFragmentToMapsFragment()
-                findNavController().navigate(action)
-            } else {
-                requestLocationPermission(this)
-            }
-
+            val action = ListFragmentDirections.actionListFragmentToMapsFragment()
+            findNavController().navigate(action)
         }
     }
 
-    private fun createAddReminderDialog() {
-        val dialogBinding = DataBindingUtil.inflate<AddReminderDialogBinding>(
-            LayoutInflater.from(requireContext()),
-            R.layout.add_reminder_dialog,
-            null,
-            false
-        )
-
-        AlertDialog.Builder(requireContext())
-            .setView(dialogBinding.root)
-            .setPositiveButton("Add Reminder") { dialog, which ->
-                var title = dialogBinding.etTitle.text.toString()
-                var description = dialogBinding.etDescription.text.toString()
-                val reminderToAdd = Reminder(1, title, description, "", "", "")
-                mListViewModel.addReminder(reminderToAdd)
-                Log.i(TAG, "Success adding record")
-            }.setNegativeButton("Cancel") { dialog, which -> }
-            .show()
-    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
@@ -136,7 +103,6 @@ class ListFragment : Fragment(R.layout.fragment_list), EasyPermissions.Permissio
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
