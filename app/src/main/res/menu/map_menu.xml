@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/map_silver"
+        android:title="@string/silver" />
+    <item
+        android:id="@+id/map_retro"
+        android:title="@string/retro" />
+    <item
+        android:id="@+id/map_dark"
+        android:title="@string/dark" />
+    <item
+        android:id="@+id/map_night"
+        android:title="@string/night" />
+    <item
+        android:id="@+id/map_aubergine"
+        android:title="@string/aubergine" />
+</menu>

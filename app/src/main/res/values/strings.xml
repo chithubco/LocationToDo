@@ -18,4 +18,11 @@
     <string name="no_reminder_data_found">No Reminder Data Found</string>
     <string name="reminder_title">Reminder Title</string>
     <string name="reminder_description">Reminder Description</string>
+    <string name="standard">Standard</string>
+    <string name="silver">Silver</string>
+    <string name="retro">Retro</string>
+    <string name="dark">Dark</string>
+    <string name="night">Night</string>
+    <string name="aubergine">Aubergine</string>
+    <string name="logout">Logout</string>
 </resources>

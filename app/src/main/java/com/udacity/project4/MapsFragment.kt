@@ -7,8 +7,7 @@ import android.content.IntentSender
 import androidx.fragment.app.Fragment
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
+import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
@@ -70,9 +69,9 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
     private val callback = OnMapReadyCallback { googleMap ->
         mMap = googleMap
 
-        if (!hasLocationPermission(requireContext())){
+        if (!hasLocationPermission(requireContext())) {
             Permissions.requestLocationPermission(this)
-        }else{
+        } else {
             mMap.isMyLocationEnabled = true
         }
 
@@ -106,22 +105,6 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
 
     }
 
-    fun addListeners(){
-        binding.btnBackToList.setOnClickListener {
-            findNavController().navigate(MapsFragmentDirections.actionMapsFragmentToListFragment())
-        }
-    }
-
-    // Function to display TextView and Fade it away
-    private fun displayInfoMessage(){
-        lifecycleScope.launch {
-            binding.tvActionDescription.visibility = View.VISIBLE
-            delay(2000)
-            binding.tvActionDescription.animate().alpha(0f).duration = 1000
-            delay(1000)
-            binding.tvActionDescription.visibility = View.GONE
-        }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -129,6 +112,64 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
         setHasOptionsMenu(true)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+
+        inflater?.inflate(R.menu.map_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.map_silver -> {
+                setMapStyle(R.raw.map_silver)
+            }
+            R.id.map_retro -> {
+                setMapStyle(R.raw.map_retro)
+            }
+            R.id.map_dark -> {
+                setMapStyle(R.raw.map_dark)
+            }
+            R.id.map_night -> {
+                setMapStyle(R.raw.map_night)
+            }
+            R.id.map_aubergine -> {
+                setMapStyle(R.raw.map_aubergine)
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+    private fun setMapStyle(resource: Int){
+        try {
+            mMap.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    requireContext(),
+                    resource
+                )
+            )
+        }catch(e: Exception) {
+            Log.d("Map Style",e.toString())
+        }
+    }
+
+
+    fun addListeners() {
+        binding.btnBackToList.setOnClickListener {
+            findNavController().navigate(MapsFragmentDirections.actionMapsFragmentToListFragment())
+        }
+    }
+
+    // Function to display TextView and Fade it away
+    private fun displayInfoMessage() {
+        lifecycleScope.launch {
+            binding.tvActionDescription.visibility = View.VISIBLE
+            delay(2000)
+            binding.tvActionDescription.animate().alpha(0f).duration = 1000
+            delay(1000)
+            binding.tvActionDescription.visibility = View.GONE
+        }
     }
 
     private fun onMapClicked() {
@@ -191,7 +232,7 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
         }
     }
 
-    private fun addCircle(position: LatLng){
+    private fun addCircle(position: LatLng) {
         mMap.addCircle(
             CircleOptions().apply {
                 center(position)
@@ -239,7 +280,7 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
     }
 
     override fun onMyLocationButtonClick(): Boolean {
-        if (!hasLocationPermission(requireContext())){
+        if (!hasLocationPermission(requireContext())) {
             Permissions.requestLocationPermission(this)
             return false
         }
