@@ -1,5 +1,6 @@
 package com.udacity.project4.data.repo
 
+import androidx.lifecycle.LiveData
 import com.udacity.project4.data.model.Reminder
 
 interface IReminderRepo {
@@ -9,4 +10,5 @@ interface IReminderRepo {
     suspend fun refreshReminders(): List<Reminder>
     suspend fun deleteReminder(reminder: Reminder)
     suspend fun deleteAllReminder()
+    fun getAllReminder():LiveData<List<Reminder>>
 }

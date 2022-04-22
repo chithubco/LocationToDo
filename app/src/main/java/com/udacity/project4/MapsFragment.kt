@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentSender
+import android.os.Build
 import androidx.fragment.app.Fragment
 import android.os.Bundle
 import android.util.Log
@@ -33,11 +34,15 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.udacity.project4.utils.Constants.PERMISSION_BACKGROND_LOCATION_REQUEST_CODE
 import com.udacity.project4.utils.Permissions.hasLocationPermission
 import com.vmadalin.easypermissions.EasyPermissions
 import com.vmadalin.easypermissions.dialogs.SettingsDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickListener,
     GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnPoiClickListener,
@@ -45,6 +50,7 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
 
     private lateinit var mMap: GoogleMap
     private lateinit var geofencingClient: GeofencingClient
+    private lateinit var intendedLatLong: LatLng
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)
@@ -89,12 +95,7 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
             isZoomGesturesEnabled = true
         }
         setMapStyle(mMap)
-        mListViewModel.reminders.observe(viewLifecycleOwner, Observer { reminders ->
-            for (reminder in reminders) {
-                val location = LatLng(reminder.latitude.toDouble(), reminder.longitude.toDouble())
-                addMarker(location, reminder.title, reminder.description)
-            }
-        })
+        addObservers()
         mMap.setOnMarkerClickListener(this)
         mMap.setOnPoiClickListener(this)
         mMap.setOnMyLocationButtonClickListener(this)
@@ -115,45 +116,21 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-
-        inflater?.inflate(R.menu.map_menu, menu)
+    private fun addObservers() {
+        mListViewModel.reminderList.observe(viewLifecycleOwner, Observer {
+            mMap.clear()
+            for (reminder in it) {
+                val location = LatLng(reminder.latitude.toDouble(), reminder.longitude.toDouble())
+                addMarker(location, reminder.title, reminder.description)
+            }
+        })
+        mListViewModel.reminders.observe(viewLifecycleOwner, Observer { reminders ->
+            for (reminder in reminders.data!!) {
+                val location = LatLng(reminder.latitude.toDouble(), reminder.longitude.toDouble())
+                addMarker(location, reminder.title, reminder.description)
+            }
+        })
     }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.map_silver -> {
-                setMapStyle(R.raw.map_silver)
-            }
-            R.id.map_retro -> {
-                setMapStyle(R.raw.map_retro)
-            }
-            R.id.map_dark -> {
-                setMapStyle(R.raw.map_dark)
-            }
-            R.id.map_night -> {
-                setMapStyle(R.raw.map_night)
-            }
-            R.id.map_aubergine -> {
-                setMapStyle(R.raw.map_aubergine)
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-    private fun setMapStyle(resource: Int){
-        try {
-            mMap.setMapStyle(
-                MapStyleOptions.loadRawResourceStyle(
-                    requireContext(),
-                    resource
-                )
-            )
-        }catch(e: Exception) {
-            Log.d("Map Style",e.toString())
-        }
-    }
-
 
     fun addListeners() {
         binding.btnBackToList.setOnClickListener {
@@ -180,8 +157,9 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
 
     private fun onMapLongClick() {
         mMap.setOnMapLongClickListener {
+            intendedLatLong = it
             if (Permissions.hasBackgroundLocationPermission(requireContext())) {
-                createAddReminderDialog(it)
+                createAddReminderDialog(intendedLatLong)
             } else {
                 Permissions.requestBackgroundLocationPermission(this)
             }
@@ -202,24 +180,20 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
             .setPositiveButton("Add Reminder") { dialog, which ->
                 var title = dialogBinding.etTitle.text.toString()
                 var description = dialogBinding.etDescription.text.toString()
-                val reminderToAdd = Reminder(
-                    0,
-                    title,
+                var createdDate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    DateTimeFormatter.ISO_INSTANT.format(Instant.now())
+                } else {
+                    TODO("VERSION.SDK_INT < O")
+                }
+                mListViewModel.makeReminder(title,
                     description,
                     position.latitude.toString(),
-                    position.longitude.toString(),
-                    ""
-                )
-                mListViewModel.addReminder(reminderToAdd)
-                Log.i(TAG, "Success adding record")
-                mListViewModel.refresh()
-                addMarker(position, title, description)
+                    position.longitude.toString(),createdDate)
             }.setNegativeButton("Cancel") { dialog, which -> }
             .show()
     }
 
     private fun addMarker(position: LatLng, title: String, snippet: String) {
-
 
         // Add Geofence for each marker
         if (Permissions.hasBackgroundLocationPermission(requireContext())) {
@@ -364,6 +338,7 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
             checkDeviceLocationSettingsAndStartGeofence(false)
         }
+
     }
 
     override fun onPermissionsDenied(requestCode: Int, perms: List<String>) {
@@ -387,7 +362,50 @@ class MapsFragment : Fragment(R.layout.fragment_maps), GoogleMap.OnMarkerClickLi
         grantResults: IntArray
     ) {
 //        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_BACKGROND_LOCATION_REQUEST_CODE){
+            createAddReminderDialog(intendedLatLong)
+        }
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+
+        inflater?.inflate(R.menu.map_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.map_silver -> {
+                setMapStyle(R.raw.map_silver)
+            }
+            R.id.map_retro -> {
+                setMapStyle(R.raw.map_retro)
+            }
+            R.id.map_dark -> {
+                setMapStyle(R.raw.map_dark)
+            }
+            R.id.map_night -> {
+                setMapStyle(R.raw.map_night)
+            }
+            R.id.map_aubergine -> {
+                setMapStyle(R.raw.map_aubergine)
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun setMapStyle(resource: Int) {
+        try {
+            mMap.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    requireContext(),
+                    resource
+                )
+            )
+        } catch (e: Exception) {
+            Log.d("Map Style", e.toString())
+        }
     }
 
 

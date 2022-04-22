@@ -10,7 +10,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.udacity.project4.data.model.Reminder
 import com.udacity.project4.databinding.AddReminderDialogBinding
 import com.udacity.project4.databinding.FragmentListBinding
@@ -31,6 +33,7 @@ class ListFragment : Fragment(R.layout.fragment_list), EasyPermissions.Permissio
     private val mListViewModel by viewModels<ListViewModel>(){
         ListViewModel.ListViewModelFactory((requireContext().applicationContext as ToDoApplication).reminderRepo)
     }
+    private val adapter = ReminderListAdapter(arrayListOf())
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,25 +46,41 @@ class ListFragment : Fragment(R.layout.fragment_list), EasyPermissions.Permissio
         setupListeners()
     }
 
+    private val swipeCallback = object : ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT){
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            return true
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            val layoutPosition = viewHolder.layoutPosition
+            val selectReminder = adapter.reminderList[layoutPosition]
+            mListViewModel.deleteReminder(selectReminder)
+        }
+    }
+
     private fun setupObservers(){
-        val adapter = ReminderListAdapter(arrayListOf())
         binding.reminderRecycleView.adapter = adapter
         binding.reminderRecycleView.layoutManager = LinearLayoutManager(requireContext())
+        ItemTouchHelper(swipeCallback).attachToRecyclerView(binding.reminderRecycleView)
+
         binding.tvNoReminderData.visibility = View.GONE
         // Observe Livedata
-        mListViewModel.reminders.observe(viewLifecycleOwner, Observer { reminders ->
+        mListViewModel.reminderList.observe(viewLifecycleOwner, Observer {
 
-            if (reminders.isEmpty()){
-                Log.i("Reminder Data",reminders.toString())
+            if (it.isNullOrEmpty()){
                 binding.tvNoReminderData.visibility = View.VISIBLE
                 binding.tvViewInMap.text = "Click to add reminders in Map"
             }else{
+                adapter.setData(it)
                 binding.tvNoReminderData.visibility = View.GONE
-                adapter.setData(reminders)
                 binding.tvViewInMap.text = "Click to view/add reminders in Map"
             }
         })
-        mListViewModel.refresh()
+
     }
 
     private fun setupListeners(){
@@ -83,7 +102,7 @@ class ListFragment : Fragment(R.layout.fragment_list), EasyPermissions.Permissio
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
 
-        inflater?.inflate(R.menu.main_menu, menu)
+        inflater.inflate(R.menu.main_menu, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

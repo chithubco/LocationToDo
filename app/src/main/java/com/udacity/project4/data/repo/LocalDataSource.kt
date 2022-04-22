@@ -1,5 +1,6 @@
 package com.udacity.project4.data.repo
 
+import androidx.lifecycle.LiveData
 import com.udacity.project4.data.dao.ReminderDao
 import com.udacity.project4.data.model.Reminder
 
@@ -23,10 +24,14 @@ class LocalDataSource constructor(private val reminderDao: ReminderDao):IDataSou
 
 
     override suspend fun deleteReminder(reminder: Reminder) {
-        TODO("Not yet implemented")
+        reminderDao.delete(reminder)
     }
 
     override suspend fun deleteAllReminders() {
         reminderDao.deleteAll()
+    }
+
+    override fun getAllReminder(): LiveData<List<Reminder>> {
+        return reminderDao.getAll()
     }
 }

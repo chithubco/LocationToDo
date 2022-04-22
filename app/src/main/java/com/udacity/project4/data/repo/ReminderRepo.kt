@@ -1,5 +1,6 @@
 package com.udacity.project4.data.repo
 
+import androidx.lifecycle.LiveData
 import com.udacity.project4.data.model.Reminder
 import com.udacity.project4.utils.wrapEspressoIdlingResource
 
@@ -43,6 +44,9 @@ class ReminderRepo constructor(private val localDataSource: IDataSource) : IRemi
         wrapEspressoIdlingResource {
             localDataSource.deleteAllReminders()
         }
+    }
 
+    override fun getAllReminder(): LiveData<List<Reminder>> {
+        return localDataSource.getAllReminder()
     }
 }

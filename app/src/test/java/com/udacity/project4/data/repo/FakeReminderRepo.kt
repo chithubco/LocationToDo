@@ -1,5 +1,6 @@
 package com.udacity.project4.data.repo
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.udacity.project4.data.model.Reminder
 import com.udacity.project4.data.source.FakeReminderData
@@ -47,6 +48,10 @@ class FakeReminderRepo : IReminderRepo {
 
     override suspend fun deleteAllReminder() {
         localReminder.clear()
+    }
+
+    override fun getAllReminder(): LiveData<List<Reminder>> {
+        TODO("Not yet implemented")
     }
 
     fun createReminder(vararg reminders: Reminder) {
