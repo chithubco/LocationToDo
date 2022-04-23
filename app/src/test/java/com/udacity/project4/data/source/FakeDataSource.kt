@@ -32,4 +32,8 @@ class FakeDataSource(var reminders:MutableList<Reminder>? = mutableListOf()): ID
     override suspend fun deleteAllReminders() {
         reminders?.clear()
     }
+
+    override fun getAllReminder(): LiveData<List<Reminder>> {
+        return reminderListLiveData
+    }
 }

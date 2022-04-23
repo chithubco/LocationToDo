@@ -10,54 +10,51 @@ class FakeReminderRepo : IReminderRepo {
 
     private var shouldReturnError = false
 
-    private val localReminder = mutableListOf<Reminder>(
-        FakeReminderData.REMINDER_1,
-        FakeReminderData.REMINDER_2,
-        FakeReminderData.REMINDER_3
-    )
-    private val newReminder = listOf(FakeReminderData.REMINDER_4)
-
-    private val observableReminders = MutableLiveData<List<Reminder>>()
+    private val reminders = mutableListOf<Reminder>()
+    private val observableReminders = MutableLiveData<List<Reminder>>(reminders)
 
     fun setReturnError(value: Boolean){
         shouldReturnError = value
     }
     override suspend fun getReminders(): List<Reminder> {
-//        if (shouldReturnError){
-//            return Error(Exception("Test Exception"))
-//        }
-        return localReminder
+        return reminders
     }
 
     override suspend fun addReminder(reminder: Reminder): Long {
-        createReminder(reminder)
+        reminders.add(reminder)
+        refreshData()
         return reminder.id
     }
 
     override suspend fun getReminderWithTitle(title: String): Reminder {
-        return localReminder?.find { it.title == title }!!
+        return reminders?.find { it.title == title }!!
     }
 
     override suspend fun refreshReminders(): List<Reminder> {
-        return localReminder
+        return reminders
     }
 
     override suspend fun deleteReminder(reminder: Reminder) {
-        TODO("Not yet implemented")
+        reminders.remove(reminder)
+        refreshData()
     }
 
     override suspend fun deleteAllReminder() {
-        localReminder.clear()
+        reminders.clear()
+        refreshData()
     }
 
     override fun getAllReminder(): LiveData<List<Reminder>> {
-        TODO("Not yet implemented")
+        return observableReminders
     }
 
-    fun createReminder(vararg reminders: Reminder) {
-        for (reminder in reminders) {
-            localReminder.add(reminder)
+    fun createReminder(vararg reminderList: Reminder) {
+        for (reminder in reminderList) {
+            reminders.add(reminder)
         }
         runBlocking { refreshReminders() }
+    }
+    private fun refreshData(){
+        observableReminders.postValue(reminders)
     }
 }
