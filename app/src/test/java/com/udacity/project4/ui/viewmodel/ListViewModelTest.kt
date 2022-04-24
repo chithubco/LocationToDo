@@ -3,6 +3,7 @@ package com.udacity.project4.ui.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.common.truth.Truth.assertThat
 import com.udacity.project4.MainCoroutineRule
+import com.udacity.project4.data.model.Reminder
 import com.udacity.project4.data.repo.FakeReminderRepo
 import com.udacity.project4.data.source.FakeReminderData.REMINDER_1
 import com.udacity.project4.getOrAwaitValue
@@ -118,5 +119,20 @@ class ListViewModelTest {
         assertThat(value.data?.description).isEqualTo("Cool Location")
         assertThat(value.data?.latitude).isEqualTo("9.052596841535514")
         assertThat(value.data?.longitude).isEqualTo("7.452365927641011")
+    }
+
+    @Test
+    fun `delete reminder with empty title`(){
+        listViewModel.deleteTheReminder(
+            Reminder(
+                1,
+                "",
+                "Cool Location",
+                "9.052596841535514",
+                "7.452365927641011",
+                ""
+        ))
+        val value = listViewModel.insertReminderMessage.getOrAwaitValue()
+        assertThat(value.status).isEqualTo(Status.ERROR)
     }
 }

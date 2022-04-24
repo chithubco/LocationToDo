@@ -1,5 +1,6 @@
 package com.udacity.project4.data.repo.dao
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -16,6 +17,7 @@ import kotlinx.coroutines.test.runBlockingTest
 //import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -28,10 +30,11 @@ class ReminderDaoTest {
     private lateinit var database: AppDatabase
 
 //    @Rule
-//    var instantTaskExecutorRule: InstantTaskExecutorRule()
+//    var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Before
     fun initDb() {
+        // Create database
         database = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             AppDatabase::class.java

@@ -89,7 +89,7 @@ class MainFragment : Fragment() {
             val response =IdpResponse.fromResultIntent(data)
             if (resultCode == Activity.RESULT_OK){
                 Log.i("MainFragment","Successfully singened in ${FirebaseAuth.getInstance().currentUser?.displayName}")
-                val action = MainFragmentDirections.actionMainFragmentToListFragment()
+                val action = MainFragmentDirections.actionMainFragmentToListFragment(null)
                 findNavController().navigate(action)
             }else{
                 Log.i("MainFragment","Sign in unsuccessful ${response?.error?.errorCode}")

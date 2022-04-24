@@ -1,4 +1,5 @@
 package com.udacity.project4.data.repo
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.udacity.project4.data.model.Reminder
 import com.udacity.project4.data.repo.source.FakeReminderData.REMINDER_1
@@ -8,44 +9,53 @@ import com.udacity.project4.data.repo.source.FakeReminderData.REMINDER_4
 import kotlinx.coroutines.runBlocking
 
 class FakeAndroidTestReminderRepo: IReminderRepo {
-    private val localReminder = mutableListOf<Reminder>(
-        REMINDER_1,
-        REMINDER_2,
-        REMINDER_3
-    )
-    private val newReminder = listOf(REMINDER_4)
+    private var shouldReturnError = false
 
-    private val observableReminders = MutableLiveData<List<Reminder>>()
+    private val reminders = mutableListOf<Reminder>()
+    private val observableReminders = MutableLiveData<List<Reminder>>(reminders)
 
+    fun setReturnError(value: Boolean){
+        shouldReturnError = value
+    }
     override suspend fun getReminders(): List<Reminder> {
-        return localReminder
+        return reminders
     }
 
     override suspend fun addReminder(reminder: Reminder): Long {
-        createReminder(reminder)
+        reminders.add(reminder)
+        refreshData()
         return reminder.id
     }
 
     override suspend fun getReminderWithTitle(title: String): Reminder {
-        return localReminder.find { it.title == title }!!
+        return reminders?.find { it.title == title }!!
     }
 
     override suspend fun refreshReminders(): List<Reminder> {
-        return localReminder
+        return reminders
     }
 
     override suspend fun deleteReminder(reminder: Reminder) {
-        TODO("Not yet implemented")
+        reminders.remove(reminder)
+        refreshData()
     }
 
     override suspend fun deleteAllReminder() {
-        localReminder.clear()
+        reminders.clear()
+        refreshData()
     }
 
-    fun createReminder(vararg reminders: Reminder){
-        for (reminder in reminders){
-            localReminder.add(reminder)
+    override fun getAllReminder(): LiveData<List<Reminder>> {
+        return observableReminders
+    }
+
+    fun createReminder(vararg reminderList: Reminder) {
+        for (reminder in reminderList) {
+            reminders.add(reminder)
         }
         runBlocking { refreshReminders() }
+    }
+    private fun refreshData(){
+        observableReminders.postValue(reminders)
     }
 }

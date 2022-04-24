@@ -17,7 +17,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
+//@RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
 class ReminderRepoTest {
     private val localReminder = listOf(REMINDER_1, REMINDER_2,REMINDER_3)

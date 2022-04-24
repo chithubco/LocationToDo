@@ -8,10 +8,13 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
+import android.os.Bundle
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.navigation.NavDeepLinkBuilder
 import com.udacity.project4.MainActivity
 import com.udacity.project4.R
+import com.udacity.project4.data.model.Reminder
 import com.udacity.project4.utils.Constants.CHANNEL_ID
 import com.udacity.project4.utils.Constants.NOTIFICATION_ID
 
@@ -36,31 +39,54 @@ class NotificationHelper(private val context: Context) {
         }
     }
 
-    fun createNotification(){
+    fun createNotification(reminder: Reminder) {
         createNotificationChannel()
         // Create an Intent
-        val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        val pendingIntent = PendingIntent.getActivity(context, NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val icon = BitmapFactory.decodeResource(context.resources, R.drawable.ic_map)
+//        val intent = Intent(context, MainActivity::class.java).apply {
+//            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+//        }
+//
+        val bundle = Bundle()
+        bundle.putParcelable(
+            "reminder",
+            Reminder(
+                1,
+                reminder.title,
+                reminder.description,
+                reminder.latitude,
+                reminder.longitude,
+                reminder.createdDate
+            )
+        )
+        val intent = NavDeepLinkBuilder(context)
+            .setComponentName(MainActivity::class.java)
+            .setGraph(R.navigation.nav_graph)
+            .setDestination(R.id.listFragment)
+            .setArguments(bundle)
+            .createPendingIntent()
 
+//        intent.putExtra("title",title)
+//        intent.putExtra("description",description)
+//        val pendingIntent = PendingIntent.getActivity(context, NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val icon = BitmapFactory.decodeResource(context.resources, R.drawable.ic_map)
+        val title = reminder.title
+        val description = reminder.description
         // Create Notification
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_map)
             .setLargeIcon(icon)
-            .setContentTitle("Todo App Geofence Alert")
-            .setContentText("You have entered the Todo App GeoFence")
+            .setContentTitle("Reminder : $title")
+            .setContentText("Description : $description")
             .setStyle(
                 NotificationCompat.BigPictureStyle()
                     .bigPicture(icon)
                     .bigLargeIcon(null)
             )
-            .setContentIntent(pendingIntent)
+            .setContentIntent(intent)
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .addAction(R.drawable.ic_location,"Do Something",pendingIntent)
+            .addAction(R.drawable.ic_location, "Do Something", intent)
             .build()
 
         NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)

@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,7 +35,7 @@ class ListFragment : Fragment(R.layout.fragment_list), EasyPermissions.Permissio
         ListViewModel.ListViewModelFactory((requireContext().applicationContext as ToDoApplication).reminderRepo)
     }
     private val adapter = ReminderListAdapter(arrayListOf())
-
+    private val args: ListFragmentArgs by navArgs()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -44,6 +45,11 @@ class ListFragment : Fragment(R.layout.fragment_list), EasyPermissions.Permissio
 
         setupObservers()
         setupListeners()
+        if (args.reminder != null){
+            val reminder = args.reminder!!
+            val action = ListFragmentDirections.actionListFragmentToDetailFragment(reminder)
+            findNavController().navigate(action)
+        }
     }
 
     private val swipeCallback = object : ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT){

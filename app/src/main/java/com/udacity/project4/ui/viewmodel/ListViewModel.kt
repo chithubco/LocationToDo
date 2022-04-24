@@ -69,6 +69,24 @@ class ListViewModel(private var repo: IReminderRepo) : ViewModel() {
         _insetReminderMsg.postValue(Resource.success(reminder))
     }
 
+    fun deleteTheReminder(reminder: Reminder) {
+        if (!validateReminder(reminder)) {
+            _insetReminderMsg.postValue(Resource.error("Empty Reminder", null))
+            return
+        }
+        deleteReminder(reminder)
+        _insetReminderMsg.postValue(Resource.success(reminder))
+    }
+
+    private fun validateReminder(reminder: Reminder): Boolean {
+        if (reminder.title.isNullOrEmpty() || reminder.description.isNullOrEmpty()
+            || reminder.latitude.isNullOrEmpty() || reminder.longitude.isNullOrEmpty()
+        ) {
+            return false
+        }
+        return true
+    }
+
 
     override fun onCleared() {
         super.onCleared()

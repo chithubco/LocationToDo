@@ -1,5 +1,6 @@
 package com.udacity.project4
 
+import com.udacity.project4.utils.NotificationHelper
 import org.junit.Test
 
 import org.junit.Assert.*

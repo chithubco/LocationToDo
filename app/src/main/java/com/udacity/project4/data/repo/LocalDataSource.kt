@@ -11,7 +11,7 @@ class LocalDataSource constructor(private val reminderDao: ReminderDao):IDataSou
     }
 
     override suspend fun refreshReminder(): List<Reminder> {
-        TODO("Not yet implemented")
+        return reminderDao.getAllReminder()
     }
 
     override suspend fun getReminder(title: String): Reminder {
