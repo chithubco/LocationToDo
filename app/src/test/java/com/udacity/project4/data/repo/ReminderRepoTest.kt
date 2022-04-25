@@ -15,7 +15,7 @@ import org.hamcrest.core.IsEqual
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
+
 
 //@RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
@@ -24,6 +24,7 @@ class ReminderRepoTest {
     private val newReminder = listOf(REMINDER_4)
 
     private lateinit var reminderDataSource:FakeDataSource
+
 
     // Class Under Test
     private lateinit var reminderRepo: ReminderRepo

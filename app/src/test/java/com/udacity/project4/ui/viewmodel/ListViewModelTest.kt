@@ -26,6 +26,7 @@ class ListViewModelTest {
 
     private lateinit var reminderRepo: FakeReminderRepo
     private lateinit var listViewModel: ListViewModel
+//    private lateinit var listViewModel: ListViewModel
 
     @Before
     fun setupViewModel() {

@@ -7,7 +7,7 @@ import com.udacity.project4.utils.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ListViewModel(private var repo: IReminderRepo) : ViewModel() {
+class ListViewModel constructor(var repo: IReminderRepo) : ViewModel() {
 
     val reminderList = repo.getAllReminder()
     val hasError = MutableLiveData<Boolean>()

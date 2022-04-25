@@ -195,6 +195,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
     implementation "androidx.test.espresso:espresso-idling-resource:$espressoVersion"
 
+//    implementation "com.google.truth:truth:1.0.1"
     testImplementation "com.google.truth:truth:1.0.1"
     androidTestImplementation "com.google.truth:truth:1.0.1"
 }

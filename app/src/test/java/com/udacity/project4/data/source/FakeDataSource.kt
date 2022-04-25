@@ -1,12 +1,14 @@
 package com.udacity.project4.data.source
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.udacity.project4.data.model.Reminder
 import com.udacity.project4.data.repo.IDataSource
 
-class FakeDataSource(var reminders:MutableList<Reminder>? = mutableListOf()): IDataSource {
+class FakeDataSource(private var reminders:MutableList<Reminder>? = mutableListOf()): IDataSource {
 
-    lateinit var reminderListLiveData: LiveData<List<Reminder>>
+    private val reminderListLiveData = MutableLiveData<List<Reminder>>(reminders)
+
     override suspend fun getReminders(): List<Reminder>{
         return reminders!!
     }
@@ -35,5 +37,8 @@ class FakeDataSource(var reminders:MutableList<Reminder>? = mutableListOf()): ID
 
     override fun getAllReminder(): LiveData<List<Reminder>> {
         return reminderListLiveData
+    }
+    private fun refreshData(){
+        reminderListLiveData.postValue(reminders)
     }
 }
