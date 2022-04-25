@@ -21,7 +21,7 @@ class ReminderRepo constructor(private val localDataSource: IDataSource) : IRemi
 
     override suspend fun getReminderWithTitle(title:String):Reminder{
         wrapEspressoIdlingResource {
-            return localDataSource.getReminder(title)
+            return localDataSource.getReminder(title)!!
         }
 
     }
