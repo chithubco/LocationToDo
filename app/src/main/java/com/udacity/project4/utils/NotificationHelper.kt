@@ -65,9 +65,6 @@ class NotificationHelper(private val context: Context) {
             .setArguments(bundle)
             .createPendingIntent()
 
-//        intent.putExtra("title",title)
-//        intent.putExtra("description",description)
-//        val pendingIntent = PendingIntent.getActivity(context, NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         val icon = BitmapFactory.decodeResource(context.resources, R.drawable.ic_map)
         val title = reminder.title
         val description = reminder.description

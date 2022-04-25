@@ -16,8 +16,6 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
     private lateinit var reminder: Reminder
     override fun onReceive(context: Context, intent: Intent) {
 
-//        var reminder = Reminder(1,"Home","Description","lat","long","")
-
         val bundle = intent.getBundleExtra("bundle")
         if (bundle != null) {
             Log.i("Parcelable 3",bundle.getParcelable<Reminder>("reminder").toString())

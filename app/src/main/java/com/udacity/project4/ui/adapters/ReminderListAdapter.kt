@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.ListFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.udacity.project4.ListFragmentDirections
 import com.udacity.project4.R
